@@ -92,6 +92,11 @@ public class LevelSpawnManager : MonoBehaviour
 	{
 		IscanSpawn();
 
+		IsInvertPaused();
+	}
+
+	void IsInvertPaused()
+    {
 		if (!paused)
 		{
 			distance += scrollSpeed * Time.deltaTime * 25;
@@ -217,7 +222,6 @@ public class LevelSpawnManager : MonoBehaviour
 	{
 		int n = obstacles.Count;
 		GameObject temp;
-
 		while (n > 1)
 		{
 			n--;
@@ -340,13 +344,18 @@ public class LevelSpawnManager : MonoBehaviour
 		activeElements.Add(randomizedCityBackgroundLayer);
 
 		//If place at middle
+		IsPlacAtMiddle(placeAtLoc, randomizedCityBackgroundLayer);
+		randomizedCityBackgroundLayer.SetActive(true);
+	}
+
+	void IsPlacAtMiddle(int placeAtLoc,GameObject randomizedCityBackgroundLayer)
+    {
 		if (placeAtLoc == 1)
 		{
 			Vector3 newPos = randomizedCityBackgroundLayer.transform.localPosition;
 			newPos.x = 0;
 			randomizedCityBackgroundLayer.transform.localPosition = newPos;
 		}
-		randomizedCityBackgroundLayer.SetActive(true);
 	}
 
 	public void SpawnCityForegroundLayer(int placeAtLoc)
@@ -358,12 +367,7 @@ public class LevelSpawnManager : MonoBehaviour
 		activeElements.Add(randomizedCityForegroundLayer);
 
 		//If place at middle
-		if (placeAtLoc == 1)
-		{
-			Vector3 newPos = randomizedCityForegroundLayer.transform.localPosition;
-			newPos.x = 0;
-			randomizedCityForegroundLayer.transform.localPosition = newPos;
-		}
+		IsPlacAtMiddle(placeAtLoc, randomizedCityForegroundLayer);
 		randomizedCityForegroundLayer.SetActive(true);
 	}
 

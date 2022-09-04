@@ -72,16 +72,20 @@ public class PlayerManager : MonoBehaviour
 	void Start()
 	{
 		instances++;
-
-		if (instances > 1)
-			Debug.LogWarning("Warning: There are more than one PlayerManager at the level");
-		else
-			_instance = this;
+		WarningPlayerManager();
 
 		thisTransform = this.GetComponent<Transform>();
 		rotationFactor = maxVerticalSpeed / maxRotation;
 
 		characterAnimator = horizontalAnimation.GetComponent<Animator>();
+	}
+
+	void WarningPlayerManager()
+    {
+		if (instances > 1)
+			Debug.LogWarning("Warning: There are more than one PlayerManager at the level");
+		else
+			_instance = this;
 	}
 
 	void Update()
@@ -110,23 +114,22 @@ public class PlayerManager : MonoBehaviour
 
 	void CalculateMovement()
 	{
+		MovingSpeed();
+	}
+
+	void MovingSpeed()
+    {
 		if (movingUpward)
 		{
 			speed += Time.deltaTime * maxVerticalSpeed;
 
 			if (distanceToTop < safeEdgeZone)
 			{
-				newSpeed = maxVerticalSpeed * (topEdge - thisTransform.position.y) / safeEdgeZone;
-
-				if (newSpeed < speed)
-					speed = newSpeed;
+				DistanceToTop();
 			}
 			else if (distanceToBottom < safeEdgeZone)
 			{
-				newSpeed = maxVerticalSpeed * (bottomEdge - thisTransform.position.y) / safeEdgeZone;
-
-				if (newSpeed > speed)
-					speed = newSpeed;
+				DistanceToBottom();
 			}
 		}
 		else
@@ -135,19 +138,29 @@ public class PlayerManager : MonoBehaviour
 
 			if (distanceToBottom < safeEdgeZone)
 			{
-				newSpeed = maxVerticalSpeed * (bottomEdge - thisTransform.position.y) / safeEdgeZone;
-
-				if (newSpeed > speed)
-					speed = newSpeed;
+				DistanceToBottom();
 			}
 			else if (distanceToTop < safeEdgeZone)
 			{
-				newSpeed = maxVerticalSpeed * (topEdge - thisTransform.position.y) / safeEdgeZone;
-
-				if (newSpeed < speed)
-					speed = newSpeed;
+				DistanceToTop();
 			}
 		}
+	}
+
+	void DistanceToBottom()
+    {
+		newSpeed = maxVerticalSpeed * (bottomEdge - thisTransform.position.y) / safeEdgeZone;
+
+		if (newSpeed > speed)
+			speed = newSpeed;
+	}
+
+	void DistanceToTop()
+    {
+		newSpeed = maxVerticalSpeed * (topEdge - thisTransform.position.y) / safeEdgeZone;
+
+		if (newSpeed < speed)
+			speed = newSpeed;
 	}
 
 	void MoveAndRotate()
@@ -160,66 +173,96 @@ public class PlayerManager : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
+		IsTriggerCollider(other);
+	}
+
+	void IsTriggerCollider(Collider other)
+    {
 		if (other.tag == "Obstacles")
 		{
-			if (other.transform.name == "Coin")
-			{
-				other.GetComponent<Renderer>().enabled = false;
-				other.GetComponent<Collider>().enabled = false;
-
-				other.transform.Find("CoinParticle").gameObject.GetComponent<ParticleSystem>().Play();
-				LevelManager.Instance.CoinGathered();
-
-			}
-			else if (other.transform.name == "BirdBrown" || other.transform.name == "BirdWhite" || other.transform.name == "StorkTall" || other.transform.name == "BirdBody")
-			{
-				UpdateMission(other.transform.name);
-				if (!crashing && canCrash && !shieldActive)
-				{
-					crashing = true;
-					controlEnabled = false;
-					crashed = true;
-				}
-				else if (shieldActive && !inExtraSpeed)
-				{
-					StartCoroutine(DisableShield());
-				}
-
-				PlayHideParticleEffect(other.transform);
-			}
-			else if (other.name == "ObstacleSpawnTriggerer" && !firstObstacleSpawned)
-			{
-				firstObstacleSpawned = true;
-				LevelSpawnManager.Instance.SpawnObstacles();
-			}
+			IsObstacles(other);
 		}
 		else if (other.tag == "PowerUps")
 		{
-			UpdateMission(other.transform.name);
-
-			switch (other.transform.name)
-			{
-				case "ExtraSpeed":
-					ExtraSpeed();
-					break;
-
-				case "Shield":
-					RaiseShield();
-					break;
-
-				case "Revive":
-					if (controlEnabled)
-						ReviveCollected();
-					break;
-
-				case "Abracadabra":
-					if (controlEnabled)
-						StartCoroutine("LaunchAbracadabra");
-					break;
-			}
-
-			other.GetComponent<PowerUp>().ResetThis();
+			IsPowerUp(other);
 		}
+	}
+
+	void IsObstacles(Collider other)
+    {
+		if (other.transform.name == "Coin")
+		{
+			IsCoins(other);
+
+		}
+		else if (other.transform.name == "BirdBrown" || other.transform.name == "BirdWhite" || other.transform.name == "StorkTall" || other.transform.name == "BirdBody")
+		{
+			Isbrid(other);
+		}
+		else if (other.name == "ObstacleSpawnTriggerer" && !firstObstacleSpawned)
+		{
+			ObstacleSpawnTriggerer();
+		}
+	}
+
+	void IsCoins(Collider other)
+    {
+		other.GetComponent<Renderer>().enabled = false;
+		other.GetComponent<Collider>().enabled = false;
+
+		other.transform.Find("CoinParticle").gameObject.GetComponent<ParticleSystem>().Play();
+		LevelManager.Instance.CoinGathered();
+	}
+
+	void Isbrid(Collider other)
+    {
+		UpdateMission(other.transform.name);
+		if (!crashing && canCrash && !shieldActive)
+		{
+			crashing = true;
+			controlEnabled = false;
+			crashed = true;
+		}
+		else if (shieldActive && !inExtraSpeed)
+		{
+			StartCoroutine(DisableShield());
+		}
+
+		PlayHideParticleEffect(other.transform);
+	}
+
+	void ObstacleSpawnTriggerer()
+    {
+		firstObstacleSpawned = true;
+		LevelSpawnManager.Instance.SpawnObstacles();
+	}
+
+	void IsPowerUp(Collider other)
+    {
+		UpdateMission(other.transform.name);
+
+		switch (other.transform.name)
+		{
+			case "ExtraSpeed":
+				ExtraSpeed();
+				break;
+
+			case "Shield":
+				RaiseShield();
+				break;
+
+			case "Revive":
+				if (controlEnabled)
+					ReviveCollected();
+				break;
+
+			case "Abracadabra":
+				if (controlEnabled)
+					StartCoroutine("LaunchAbracadabra");
+				break;
+		}
+
+		other.GetComponent<PowerUp>().ResetThis();
 	}
 
 	void UpdateMission(string name)
@@ -254,10 +297,7 @@ public class PlayerManager : MonoBehaviour
 
 		if (distanceToTop < safeEdgeZone)
 		{
-			newSpeed = maxVerticalSpeed * (topEdge - thisTransform.position.y) / safeEdgeZone;
-
-			if (newSpeed < speed)
-				speed = newSpeed;
+			NewSpeed(topEdge, safeEdgeZone);
 		}
 		if (distance > 0.1f)
 		{
@@ -265,10 +305,7 @@ public class PlayerManager : MonoBehaviour
 
 			if (distance < crashPosEdge)
 			{
-				newSpeed = maxVerticalSpeed * (crashPosY - thisTransform.position.y) / crashPosEdge;
-
-				if (newSpeed > speed)
-					speed = newSpeed;
+				NewSpeed( crashPosY,  crashPosEdge);
 			}
 
 			MoveAndRotate();
@@ -284,6 +321,14 @@ public class PlayerManager : MonoBehaviour
 			crashing = false;
 			StartCoroutine("CrashEffects");
 		}
+	}
+
+	void NewSpeed(float crashPosY, float crashPosEdge)
+    {
+		newSpeed = maxVerticalSpeed * (crashPosY - thisTransform.position.y) / crashPosEdge;
+
+		if (newSpeed > speed)
+			speed = newSpeed;
 	}
 
 	IEnumerator CrashEffects()
@@ -523,17 +568,7 @@ public class PlayerManager : MonoBehaviour
 			inRevive = true;
 			powerUpUsed = true;
 
-			if (hasRevive)
-			{
-				hasRevive = false;
-				GameMenuManager.Instance.DisableReviveGUI(0);
-			}
-			else
-			{
-				shopReviveUsed = true;
-				PreferencesManager.Instance.ModifyReviveBy(-1);
-				GameMenuManager.Instance.DisableReviveGUI(1);
-			}
+			IsRevive();
 
 			speed = 0;
 			reviveParticle.Play();
@@ -557,5 +592,20 @@ public class PlayerManager : MonoBehaviour
 		}
 
 		yield return new WaitForEndOfFrame();
+	}
+
+	void IsRevive()
+    {
+		if (hasRevive)
+		{
+			hasRevive = false;
+			GameMenuManager.Instance.DisableReviveGUI(0);
+		}
+		else
+		{
+			shopReviveUsed = true;
+			PreferencesManager.Instance.ModifyReviveBy(-1);
+			GameMenuManager.Instance.DisableReviveGUI(1);
+		}
 	}
 }

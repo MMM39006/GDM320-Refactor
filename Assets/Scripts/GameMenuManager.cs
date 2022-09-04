@@ -79,7 +79,11 @@ public class GameMenuManager : MonoBehaviour
 	void Start()
 	{
 		instances++;
+		WarningGameMenuManager();
+	}
 
+	void WarningGameMenuManager()
+    {
 		if (instances > 1)
 			Debug.LogWarning("Warning: There are more than one GameMenuManager at the level");
 		else
@@ -88,6 +92,11 @@ public class GameMenuManager : MonoBehaviour
 
 	void Update()
 	{
+		ShowMainGui();
+	}
+
+	void ShowMainGui()
+    {
 		if (showMainGUI && !showPause)
 		{
 			DisplayStatistics(guiTexts[0], LevelManager.Instance.Coins(), 4);
@@ -105,14 +114,19 @@ public class GameMenuManager : MonoBehaviour
 		string dataString = "";
 		int remainingDigitCount = digitNumbers - data.ToString().Length;
 
+		RemainDgigigCount(remainingDigitCount, dataString);
+
+		dataString += data;
+		target.text = dataString;
+	}
+
+	void RemainDgigigCount(int remainingDigitCount,string dataString)
+    {
 		while (remainingDigitCount > 0)
 		{
 			dataString += "0";
 			remainingDigitCount--;
 		}
-
-		dataString += data;
-		target.text = dataString;
 	}
 
 	void Pause()
@@ -423,6 +437,18 @@ public class GameMenuManager : MonoBehaviour
 	{
 		StartCoroutine(FadeScreen(0.4f, 1.0f));
 
+		IsShowPause();
+
+		yield return new WaitForSeconds(0.5f);
+		StartCoroutine(FadeScreen(0.4f, 0.0f));
+
+		mainMenuElements[0].SetActive(false);
+		LevelManager.Instance.Restart();
+		SoundManager.Instance.StartMusic();
+	}
+
+	void IsShowPause()
+    {
 		if (showPause)
 		{
 			showPause = false;
@@ -434,13 +460,6 @@ public class GameMenuManager : MonoBehaviour
 			StartCoroutine(MoveMenu(finishMenu.transform, 0, -60, 0.55f, false));
 			StartCoroutine(MoveMenu(finishMenuTop.transform, 0, 118, 0.55f, false));
 		}
-
-		yield return new WaitForSeconds(0.5f);
-		StartCoroutine(FadeScreen(0.4f, 0.0f));
-
-		mainMenuElements[0].SetActive(false);
-		LevelManager.Instance.Restart();
-		SoundManager.Instance.StartMusic();
 	}
 
 	public void RestartGame()
@@ -459,17 +478,7 @@ public class GameMenuManager : MonoBehaviour
 		starting = false;
 		StartCoroutine(FadeScreen(0.4f, 1.0f));
 
-		if (showPause)
-		{
-			showPause = false;
-			StartCoroutine(MoveMenu(pauseElements[1].transform, 0, 59, 0.45f, false));
-			StartCoroutine(MoveMenu(pauseElements[2].transform, 0, -60, 0.45f, false));
-		}
-		else
-		{
-			StartCoroutine(MoveMenu(finishMenu.transform, 0, -60, 0.55f, false));
-			StartCoroutine(MoveMenu(finishMenuTop.transform, 0, 118, 0.55f, false));
-		}
+		IsShowPause();
 
 		mainGUIElements[1].SetActive(false);
 		mainGUIElements[2].SetActive(false);
@@ -488,7 +497,7 @@ public class GameMenuManager : MonoBehaviour
 
 		SoundManager.Instance.StopMusic();
 	}
-
+	//---------------------------------------------------------------------------
 	IEnumerator MoveMenu(Transform menuTransform, float endPosX, float endPosY, float time, bool hide)
 	{
 		canClick = false;
@@ -748,6 +757,7 @@ public class GameMenuManager : MonoBehaviour
 		StartCoroutine(MovePowerUpSelection(hasSpeed, hasShield, hasAbracadabra));
 	}
 
+
 	public void ActivateMainGUI()
 	{
 		showMainGUI = true;
@@ -791,94 +801,87 @@ public class GameMenuManager : MonoBehaviour
 	{
 		if (text1.Length < 26)
 		{
-			missionTexts[0].fontSize = 20;
-			missionTexts[1].fontSize = 20;
-			missionTexts[2].fontSize = 20;
+			MissionFontSize(20, 0, 1, 2);
 		}
 		else if (text1.Length < 31)
 		{
-			missionTexts[0].fontSize = 18;
-			missionTexts[1].fontSize = 18;
-			missionTexts[2].fontSize = 18;
+			MissionFontSize(18, 0, 1, 2);
 		}
 		else
 		{
-			missionTexts[0].fontSize = 14;
-			missionTexts[1].fontSize = 14;
-			missionTexts[2].fontSize = 14;
+			MissionFontSize(14, 0, 1, 2);
 		}
 
-		missionTexts[0].text = text1;
-		missionTexts[1].text = text1;
-		missionTexts[2].text = text1;
+		MissionText(text1, 0, 1, 2);
 
 		if (text2.Length < 26)
 		{
-			missionTexts[3].fontSize = 20;
-			missionTexts[4].fontSize = 20;
-			missionTexts[5].fontSize = 20;
+			MissionFontSize(20, 3, 4, 5);
 		}
 		else if (text2.Length < 31)
 		{
-			missionTexts[3].fontSize = 18;
-			missionTexts[4].fontSize = 18;
-			missionTexts[5].fontSize = 18;
+			MissionFontSize(18, 3, 4, 5);
 		}
 		else
 		{
-			missionTexts[3].fontSize = 14;
-			missionTexts[4].fontSize = 14;
-			missionTexts[5].fontSize = 14;
+			MissionFontSize(14, 3, 4, 5);
 		}
+		MissionText(text2, 3, 4, 5);
 
-		missionTexts[3].text = text2;
-		missionTexts[4].text = text2;
-		missionTexts[5].text = text2;
 
 		if (text3.Length < 26)
 		{
-			missionTexts[6].fontSize = 20;
-			missionTexts[7].fontSize = 20;
-			missionTexts[8].fontSize = 20;
+			MissionFontSize(20, 6, 7, 8);
 		}
 		else if (text3.Length < 31)
 		{
-			missionTexts[6].fontSize = 18;
-			missionTexts[7].fontSize = 18;
-			missionTexts[8].fontSize = 18;
+			MissionFontSize(18, 6, 7, 8);
 		}
 		else
 		{
-			missionTexts[6].fontSize = 14;
-			missionTexts[7].fontSize = 14;
-			missionTexts[8].fontSize = 14;
+			MissionFontSize(14, 6, 7, 8);
 		}
-
-		missionTexts[6].text = text3;
-		missionTexts[7].text = text3;
-		missionTexts[8].text = text3;
+		MissionText(text3, 6, 7, 8);
 	}
+
+	void MissionFontSize(int Size, int n0, int n1, int n2)
+	{
+		missionTexts[n0].fontSize = Size;
+		missionTexts[n1].fontSize = Size;
+		missionTexts[n2].fontSize = Size;
+	}
+
+	void MissionText(string text,int n0,int n1,int n2)
+    {
+		missionTexts[n0].text = text;
+		missionTexts[n1].text = text;
+		missionTexts[n2].text = text;
+	}
+
 
 	public void UpdateMissionStatus(int i, int a, int b)
 	{
 		switch (i)
 		{
 			case 0:
-				missionStatus[0].text = a + "/" + b;
-				missionStatus[1].text = a + "/" + b;
-				missionStatus[2].text = a + "/" + b;
+				MissionStatus(a, b, 0, 1, 2);
 				break;
+
 			case 1:
-				missionStatus[3].text = a + "/" + b;
-				missionStatus[4].text = a + "/" + b;
-				missionStatus[5].text = a + "/" + b;
+				MissionStatus(a, b, 3, 4, 5);
 				break;
+
 			case 2:
-				missionStatus[6].text = a + "/" + b;
-				missionStatus[7].text = a + "/" + b;
-				missionStatus[8].text = a + "/" + b;
+				MissionStatus(a, b, 6, 7, 8);
 				break;
 		}
+	}
+
+	void MissionStatus(int a ,int b,int n0,int n1,int n2)
+    {
+		missionStatus[n0].text = a + "/" + b;
+		missionStatus[n1].text = a + "/" + b;
+		missionStatus[n2].text = a + "/" + b;
 	}
 
 	public IEnumerator ShowRevive()
@@ -925,44 +928,22 @@ public class GameMenuManager : MonoBehaviour
 
 		if (!mNotification1Used)
 		{
-			notificationObject = missionNotification[0];
-			notificationTextMesh = notificationObject.transform.Find("Text").GetComponent<TextMesh>() as TextMesh;
-
-			mNotification1Used = true;
-			notificationIndex = 1;
-			yPosTarget = 32;
+			Notification(notificationObject, notificationTextMesh, 0, 1, 32);
 		}
 		else if (mNotification1Used && !mNotification2Used)
 		{
-			notificationObject = missionNotification[1];
-			notificationTextMesh = notificationObject.transform.Find("Text").GetComponent<TextMesh>() as TextMesh;
-
-			yPosTarget = 26;
-			mNotification2Used = true;
-			notificationIndex = 2;
+			Notification(notificationObject, notificationTextMesh, 1, 2, 26);
 		}
 		else if (mNotification1Used && mNotification2Used && !mNotification3Used)
 		{
-			notificationObject = missionNotification[2];
-			notificationTextMesh = notificationObject.transform.Find("Text").GetComponent<TextMesh>() as TextMesh;
-
-			yPosTarget = 20;
-			mNotification3Used = true;
-			notificationIndex = 3;
+			Notification(notificationObject, notificationTextMesh, 2, 3, 20);
 		}
 		else
 		{
 			StopCoroutine("ShowMissionComplete");
 		}
 
-		if (text.Length < 26)
-			notificationTextMesh.fontSize = 24;
-		else if (text.Length < 31)
-			notificationTextMesh.fontSize = 21;
-		else if (text.Length < 36)
-			notificationTextMesh.fontSize = 19;
-		else
-			notificationTextMesh.fontSize = 14;
+		notificationTextsize( text, notificationTextMesh);
 
 		notificationTextMesh.text = text;
 
@@ -980,6 +961,33 @@ public class GameMenuManager : MonoBehaviour
 			yield return new WaitForSeconds(0.5f);
 		}
 
+		IndexNotification(notificationIndex);
+	}
+
+	void Notification(GameObject notificationObject, TextMesh notificationTextMesh, int missionNotificationIndex, int notificationIndex, float yPosTarget)
+    {
+		notificationObject = missionNotification[missionNotificationIndex];
+		notificationTextMesh = notificationObject.transform.Find("Text").GetComponent<TextMesh>() as TextMesh;
+
+		mNotification1Used = true;
+		notificationIndex = 1;
+		yPosTarget = 32;
+	}
+
+	void notificationTextsize(string text, TextMesh notificationTextMesh)
+    {
+		if (text.Length < 26)
+			notificationTextMesh.fontSize = 24;
+		else if (text.Length < 31)
+			notificationTextMesh.fontSize = 21;
+		else if (text.Length < 36)
+			notificationTextMesh.fontSize = 19;
+		else
+			notificationTextMesh.fontSize = 14;
+	}
+
+	void IndexNotification(int notificationIndex)
+    {
 		if (notificationIndex == 1)
 			mNotification1Used = false;
 		else if (notificationIndex == 2)
