@@ -176,15 +176,15 @@ public class MissionManager : MonoBehaviour
 				mission = missions[activeMissionIDs[i]];
 
 				if (mission.missionType == Mission.MissionType.PowerUps)
-					CheckPowerUpBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.ExtraSpeed && name == "ExtraSpeed")
-					CheckPowerUpBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.Shield && name == "Shield")
-					CheckPowerUpBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.Abracadabra && name == "Abracadabra")
-					CheckPowerUpBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.Revive && name == "Revive")
-					CheckPowerUpBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 			}
 		}
 	}
@@ -200,15 +200,15 @@ public class MissionManager : MonoBehaviour
 				mission = missions[activeMissionIDs[i]];
 
 				if (mission.missionType == Mission.MissionType.Obstacles)
-					CheckObstacleBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.BirdBrown && name == "BirdBrown")
-					CheckObstacleBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.BirdWhite && name == "BirdWhite")
-					CheckObstacleBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.BirdBody && name == "BirdBody")
-					CheckObstacleBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 				else if (mission.missionType == Mission.MissionType.StorkTall && name == "StorkTall")
-					CheckObstacleBased(mission, i);
+					CheckPowerAndObstacleBased(mission, i);
 			}
 		}
 	}
@@ -311,19 +311,7 @@ public class MissionManager : MonoBehaviour
 		}
 	}
 
-	void CheckPowerUpBased(Mission mission, int i)
-	{
-		if (mission.goalType == Mission.GoalType.InOneRun || mission.goalType == Mission.GoalType.InMultipleRun)
-		{
-			mission.ModifyStoredValue(true, 1);
-			GameMenuManager.Instance.UpdateMissionStatus(i, mission.StoredValue(), mission.valueA);
-
-			if (mission.valueA == mission.StoredValue())
-				MissionCompleted(mission, i);
-		}
-	}
-
-	void CheckObstacleBased(Mission mission, int i)
+	void CheckPowerAndObstacleBased(Mission mission, int i)
 	{
 		if (mission.goalType == Mission.GoalType.InOneRun || mission.goalType == Mission.GoalType.InMultipleRun)
 		{

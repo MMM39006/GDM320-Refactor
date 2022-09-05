@@ -38,11 +38,9 @@ public class Mission
 
 	public string description = "";
 
-	public int valueA = 0;
-	public int valueB = 0;
+	public int valueA = 0, valueB = 0;
 
-	int storedValue = 0;
-	int startingValue = 0;
+	int storedValue = 0, startingValue = 0;
 
 	bool completed = false;
 

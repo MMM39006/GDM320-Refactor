@@ -35,15 +35,17 @@ public class SpriteAnim : MonoBehaviour
 
 		yield return new WaitForSeconds(0.1f);
 
-		if (currentId == 0)
-		{
-			this.GetComponent<Renderer>().material.mainTexture = frameB;
-			currentId = 1;
-		}
-		else
-		{
-			this.GetComponent<Renderer>().material.mainTexture = frameA;
-			currentId = 0;
+		switch (currentId)
+        {
+			case 0:
+				this.GetComponent<Renderer>().material.mainTexture = frameB;
+				currentId = 1;
+				break;
+
+			default:
+				this.GetComponent<Renderer>().material.mainTexture = frameA;
+				currentId = 0;
+				break;
 		}
 
 		canAnimate = true;
