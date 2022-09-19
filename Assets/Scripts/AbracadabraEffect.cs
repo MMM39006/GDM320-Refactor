@@ -2,44 +2,44 @@ using UnityEngine;
 using System.Collections;
 public class AbracadabraEffect : MonoBehaviour
 {
-	bool canDisable = false;
-	void OnTriggerEnter(Collider other)
+	bool IscanDisable = false;
+	void IsOnTriggerEnter(Collider other)
 	{
         if (other.transform.name != "BirdBrown" && other.transform.name != "BirdWhite" && other.transform.name != "StorkTall")
-        { tranformotherMethod(other);}
+        { IsTranforMotherMethod(other);}
         else{ PlayHideEffectParticle(other.transform); }
     }
-    private void tranformotherMethod(Collider other)
+    private void IsTranforMotherMethod(Collider other)
     {
         if (other.name == "BirdBody")
-        { birdbodyifMethod(other); }
-        else if (other.name == "ResetTriggerer" && other.tag == "Obstacles" && canDisable)
+        { IsCanDisableCanHit(other); }
+        else if (other.name == "ResetTriggerer" && other.tag == "Obstacles" && IscanDisable)
         { ResetThis(); }
     }
-    private void birdbodyifMethod(Collider other)
+    private void IsCanDisableCanHit(Collider other)
     {
-        if (!canDisable)
+        if (!IscanDisable)
         { other.transform.parent.GetComponent<BirdTraffic>().TargetHit(true);}
     }
     void PlayHideEffectParticle(Transform parent)
     {
-        playhideeffectpartimethod(parent);
-        if (!canDisable)
+        PlayHideRenderCollider(parent);
+        if (!IscanDisable)
         { ParticleSystem hideParticle = parent.Find("HideParticleEffect").gameObject.GetComponent("ParticleSystem") as ParticleSystem; hideParticle.Play(); }
     }
-    private static void playhideeffectpartimethod(Transform parent)
+    private static void PlayHideRenderCollider(Transform parent)
     {
         parent.GetComponent<Renderer>().enabled = false;
         parent.GetComponent<Collider>().enabled = false;
     }
     void ResetThis()
 	{
-		canDisable = false;
+		IscanDisable = false;
 		this.transform.localPosition = new Vector3(-70, 0, -5);
 		this.gameObject.SetActive(false);
 	}
 	public void Disable()
 	{
-		canDisable = true;
+		IscanDisable = true;
 	}
 }

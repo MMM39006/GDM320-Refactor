@@ -6,13 +6,13 @@ public class AdvertisementManager : MonoBehaviour
 {
 	static AdvertisementManager _instance;
 	static int instances = 0;
-	public bool showTestAds = true;
+	public bool IsshowTestAds = true;
 	public static AdvertisementManager Instance
 	{
 		get
-        {return getmedInstance();}
+        {return GetInstance();}
     }
-    private static AdvertisementManager getmedInstance()
+    private static AdvertisementManager GetInstance()
     {
         if (_instance == null)
         {_instance = FindObjectOfType(typeof(AdvertisementManager)) as AdvertisementManager;}
@@ -62,7 +62,7 @@ public class AdvertisementManager : MonoBehaviour
     private void InitInterMed(string adUnitIdReal, string adUnitIdTest)
     {
         string adUnitId = adUnitIdTest;
-        if (!this.showTestAds)
+        if (!this.IsshowTestAds)
             adUnitId = adUnitIdReal;
         Debug.Log("adUnitId: " + adUnitId);
     }
@@ -99,7 +99,7 @@ public class AdvertisementManager : MonoBehaviour
     private void RewardVDOMed(string adUnitIdReal, string adUnitIdTest)
     {
         string adUnitId = adUnitIdTest;
-        if (!this.showTestAds)
+        if (!this.IsshowTestAds)
             adUnitId = adUnitIdReal;
         Debug.Log("adUnitId: " + adUnitId);
     }

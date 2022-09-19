@@ -34,35 +34,35 @@ public class GameInputManager : MonoBehaviour
 	void GetClicks()
 	{
 		if (Input.GetMouseButtonDown(0))
-        {mouseDownMed();}
+        {IsMouseDown();}
         else if (Input.GetMouseButtonUp(0))
-        {MouseUpMed();}
+        {IsMouseUp();}
     }
-    private void MouseUpMed()
+    private void IsMouseUp()
     {
         if (button == null)
             PlayerManager.Instance.MoveDown();
         else
             GameMenuManager.Instance.ButtonUp(button);
     }
-    private void mouseDownMed()
+    private void IsMouseDown()
     {
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        mousedownMed2();
+        IsMouseDownRaycast();
     }
-    private void mousedownMed2()
+    private void IsMouseDownRaycast()
     {
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, mask))
-        {down2Med();}
+        {MouseDownBottonHit();}
         else
-        {down2med2();}
+        {MouseDownButtonNull();}
     }
-    private void down2med2()
+    private void MouseDownButtonNull()
     {
         button = null;
         PlayerManager.Instance.MoveUp();
     }
-    private void down2Med()
+    private void MouseDownBottonHit()
     {
         button = hit.transform;
         GameMenuManager.Instance.ButtonDown(button);
@@ -70,40 +70,40 @@ public class GameInputManager : MonoBehaviour
     void GetTouches()
 	{
 		foreach (Touch touch in Input.touches)
-        { touchMed1(touch);}
+        { IsTouch(touch);}
     }
-    private void touchMed1(Touch touch)
+    private void IsTouch(Touch touch)
     {
         if (touch.phase == TouchPhase.Began && touch.phase != TouchPhase.Canceled)
-        {touchmedif1(touch);}
+        {TouchCamera(touch);}
         else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-        {touchmedelse1();}
+        {IsBottonTouch();}
     }
-    private void touchmedelse1()
+    private void IsBottonTouch()
     {
         if (button == null)
             PlayerManager.Instance.MoveDown();
         else
             GameMenuManager.Instance.ButtonUp(button);
     }
-    private void touchmedif1(Touch touch)
+    private void TouchCamera(Touch touch)
     {
         ray = Camera.main.ScreenPointToRay(touch.position);
-        touchmedif2();
+        IsTouchRaycast();
     }
-    private void touchmedif2()
+    private void IsTouchRaycast()
     {
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, mask))
-        {touchmedif3();}
+        {TouchBottonHit();}
         else
-        {touchmedifelse();}
+        {TouchBottonNull();}
     }
-    private void touchmedifelse()
+    private void TouchBottonNull()
     {
         button = null;
         PlayerManager.Instance.MoveUp();
     }
-    private void touchmedif3()
+    private void TouchBottonHit()
     {
         button = hit.transform;
         GameMenuManager.Instance.ButtonDown(button);
