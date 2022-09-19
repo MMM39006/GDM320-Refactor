@@ -21,24 +21,31 @@ public class SoundManager : MonoBehaviour
 	}
 
 	void Start()
-	{
-		instances++;
-		WarningFromSoundManager();
+    {
+        instances++;
+        WarningFromSoundManager();
 
-		float storedVolumeValue = PreferencesManager.Instance.GetMusicVolume();
-		for (int i = 0; i < audioButtons.Length; i++)
-		{
-			IsVolumeValue(storedVolumeValue,i);
-		}
-		IsVolumeValueOff(storedVolumeValue);
-	}
+        float storedVolumeValue = PreferencesManager.Instance.GetMusicVolume();
+        AudioLength(storedVolumeValue);
+        IsVolumeValueOff(storedVolumeValue);
+    }
 
-	void WarningFromSoundManager()
+    private void AudioLength(float storedVolumeValue)
+    {
+        for (int i = 0; i < audioButtons.Length; i++)
+        {
+            IsVolumeValue(storedVolumeValue, i);
+        }
+    }
+
+    void WarningFromSoundManager()
     {
 		if (instances > 1)
+        {
 			Debug.LogWarning("Warning: There are more than one SoundManager at the level");
-		else
-			_instance = this;
+			return;
+		}
+		_instance = this;
 	}
 
 	void IsVolumeValue(float storedVolumeValue,int i)
@@ -46,15 +53,12 @@ public class SoundManager : MonoBehaviour
 		if (storedVolumeValue > 0)
 		{
 			audioButtons[i].GetComponent<Renderer>().material.mainTexture = GameMenuManager.Instance.menuTextures[2];
-			GameMenuManager.Instance.audioEnabled = true;
-		}
-		else
-		{
-			audioButtons[i].GetComponent<Renderer>().material.mainTexture = GameMenuManager.Instance.menuTextures[3];
-			GameMenuManager.Instance.audioEnabled = false;
+			GameMenuManager.Instance.IsaudioEnabled = true;
+			return;
 		}
 
-
+		audioButtons[i].GetComponent<Renderer>().material.mainTexture = GameMenuManager.Instance.menuTextures[3];
+		GameMenuManager.Instance.IsaudioEnabled = false;
 	}
 
 	void IsVolumeValueOff(float storedVolumeValue)
@@ -83,26 +87,41 @@ public class SoundManager : MonoBehaviour
 	}
 
 	public void StopMusic()
-	{
-		if (gameObject.GetComponent<AudioSource>() != null)
-		{
-			gameObject.GetComponent<AudioSource>().Stop();
-		}
-	}
+    {
+        StopAudio();
+    }
 
-	public void StartMusic()
-	{
-		if (PreferencesManager.Instance.GetMusicVolume() > 0)
-		{
-			if (gameObject.GetComponent<AudioSource>() != null)
-			{
-				gameObject.GetComponent<AudioSource>().Stop();
-				gameObject.GetComponent<AudioSource>().Play();
-			}
-		}
-	}
+    private void StopAudio()
+    {
+        if (gameObject.GetComponent<AudioSource>() != null)
+        {
+            gameObject.GetComponent<AudioSource>().Stop();
+        }
+    }
 
-	public void ResumeMusic()
+    public void StartMusic()
+    {
+        StartAudio();
+    }
+
+    private void StartAudio()
+    {
+        if (PreferencesManager.Instance.GetMusicVolume() > 0)
+        {
+            IsAudioNull();
+        }
+    }
+
+    private void IsAudioNull()
+    {
+        if (gameObject.GetComponent<AudioSource>() != null)
+        {
+            gameObject.GetComponent<AudioSource>().Stop();
+            gameObject.GetComponent<AudioSource>().Play();
+        }
+    }
+
+    public void ResumeMusic()
 	{
 		if (PreferencesManager.Instance.GetMusicVolume() > 0)
 		{

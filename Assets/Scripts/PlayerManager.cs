@@ -40,19 +40,19 @@ public class PlayerManager : MonoBehaviour
 	float xPos = -30;
 	float startingPos = -37;
 
-	bool movingUpward = false;
-	bool controlEnabled = false;
-	bool canCrash = true;
-	bool crashing = false;
-	bool crashed = false;
-	public bool firstObstacleSpawned = false;
-	bool hasRevive = false;
-	bool inRevive = false;
-	bool shieldActive = false;
-	bool inExtraSpeed = false;
-	bool paused = false;
-	bool shopReviveUsed = false;
-	bool powerUpUsed = false;
+	bool IsmovingUpward = false;
+	bool IscontrolEnabled = false;
+	bool IsCrash = true;
+	bool Iscrashing = false;
+	bool Iscrashed = false;
+	public bool IsfirstObstacleSpawned = false;
+	bool IshasRevive = false;
+	bool IsinRevive = false;
+	bool IsshieldActive = false;
+	bool IsinExtraSpeed = false;
+	bool Ispaused = false;
+	bool IsshopReviveUsed = false;
+	bool IspowerUpUsed = false;
 
 	Transform thisTransform;
 
@@ -83,27 +83,28 @@ public class PlayerManager : MonoBehaviour
 	void WarningPlayerManager()
     {
 		if (instances > 1)
+        {
 			Debug.LogWarning("Warning: There are more than one PlayerManager at the level");
-		else
-			_instance = this;
+			return;
+		}
+		_instance = this;
 	}
 
 	void Update()
 	{
-		if (controlEnabled)
+		if (IscontrolEnabled)
 		{
 			CalculateDistances();
 			CalculateMovement();
 			MoveAndRotate();
+			return;
 		}
-		else if (crashing)
+		if (Iscrashing)
 		{
 			Crash();
+			return;
 		}
-		else
-		{
-			speed = 0;
-		}
+		speed = 0;
 	}
 
 	void CalculateDistances()
@@ -119,35 +120,32 @@ public class PlayerManager : MonoBehaviour
 
 	void MovingSpeed()
     {
-		if (movingUpward)
-		{
-			speed += Time.deltaTime * maxVerticalSpeed;
-
-			if (distanceToTop < safeEdgeZone)
-			{
-				DistanceToTop();
-			}
-			else if (distanceToBottom < safeEdgeZone)
-			{
-				DistanceToBottom();
-			}
-		}
-		else
-		{
-			speed -= Time.deltaTime * maxVerticalSpeed;
-
-			if (distanceToBottom < safeEdgeZone)
-			{
-				DistanceToBottom();
-			}
-			else if (distanceToTop < safeEdgeZone)
-			{
-				DistanceToTop();
-			}
-		}
+		if (IsmovingUpward)
+        {
+            speed += Time.deltaTime * maxVerticalSpeed;
+            Isdistance();
+			return;
+        }
+		speed -= Time.deltaTime * maxVerticalSpeed;
+		Isdistance();
+		return;
 	}
 
-	void DistanceToBottom()
+    private void Isdistance()
+    {
+        if (distanceToTop < safeEdgeZone)
+        {
+            DistanceToTop();
+			return;
+        }
+        if (distanceToBottom < safeEdgeZone)
+        {
+            DistanceToBottom();
+			return;
+        }
+    }
+
+    void DistanceToBottom()
     {
 		newSpeed = maxVerticalSpeed * (bottomEdge - thisTransform.position.y) / safeEdgeZone;
 
@@ -181,10 +179,12 @@ public class PlayerManager : MonoBehaviour
 		if (other.tag == "Obstacles")
 		{
 			IsObstacles(other);
+			return;
 		}
-		else if (other.tag == "PowerUps")
+		if (other.tag == "PowerUps")
 		{
 			IsPowerUp(other);
+			return;
 		}
 	}
 
@@ -193,15 +193,17 @@ public class PlayerManager : MonoBehaviour
 		if (other.transform.name == "Coin")
 		{
 			IsCoins(other);
-
+			return;
 		}
-		else if (other.transform.name == "BirdBrown" || other.transform.name == "BirdWhite" || other.transform.name == "StorkTall" || other.transform.name == "BirdBody")
+		if (other.transform.name == "BirdBrown" || other.transform.name == "BirdWhite" || other.transform.name == "StorkTall" || other.transform.name == "BirdBody")
 		{
 			Isbrid(other);
+			return;
 		}
-		else if (other.name == "ObstacleSpawnTriggerer" && !firstObstacleSpawned)
+		if (other.name == "ObstacleSpawnTriggerer" && !IsfirstObstacleSpawned)
 		{
 			ObstacleSpawnTriggerer();
+			return;
 		}
 	}
 
@@ -217,15 +219,17 @@ public class PlayerManager : MonoBehaviour
 	void Isbrid(Collider other)
     {
 		UpdateMission(other.transform.name);
-		if (!crashing && canCrash && !shieldActive)
+		if (!Iscrashing && IsCrash && !IsshieldActive)
 		{
-			crashing = true;
-			controlEnabled = false;
-			crashed = true;
+			Iscrashing = true;
+			IscontrolEnabled = false;
+			Iscrashed = true;
+			return;
 		}
-		else if (shieldActive && !inExtraSpeed)
+		if (IsshieldActive && !IsinExtraSpeed)
 		{
 			StartCoroutine(DisableShield());
+			return;
 		}
 
 		PlayHideParticleEffect(other.transform);
@@ -233,7 +237,7 @@ public class PlayerManager : MonoBehaviour
 
 	void ObstacleSpawnTriggerer()
     {
-		firstObstacleSpawned = true;
+		IsfirstObstacleSpawned = true;
 		LevelSpawnManager.Instance.SpawnObstacles();
 	}
 
@@ -252,12 +256,12 @@ public class PlayerManager : MonoBehaviour
 				break;
 
 			case "Revive":
-				if (controlEnabled)
+				if (IscontrolEnabled)
 					ReviveCollected();
 				break;
 
 			case "Abracadabra":
-				if (controlEnabled)
+				if (IscontrolEnabled)
 					StartCoroutine("LaunchAbracadabra");
 				break;
 		}
@@ -275,20 +279,18 @@ public class PlayerManager : MonoBehaviour
 		if (particleParent.name == "BirdBody")
 		{
 			particleParent.transform.parent.gameObject.GetComponent<BirdTraffic>().TargetHit(true);
+			return;
 		}
-		else
-		{
-			ParticleSystem hideParticle = particleParent.Find("HideParticleEffect").gameObject.GetComponent("ParticleSystem") as ParticleSystem;
-			hideParticle.Play();
+		ParticleSystem hideParticle = particleParent.Find("HideParticleEffect").gameObject.GetComponent("ParticleSystem") as ParticleSystem;
+		hideParticle.Play();
 
-			particleParent.GetComponent<Renderer>().enabled = false;
-			particleParent.GetComponent<Collider>().enabled = false;
-		}
+		particleParent.GetComponent<Renderer>().enabled = false;
+		particleParent.GetComponent<Collider>().enabled = false;
 	}
 
 	void Crash()
 	{
-		crashed = true;
+		Iscrashed = true;
 
 		float crashPosY = bottomEdge - 5;
 		float crashPosEdge = 4;
@@ -300,36 +302,41 @@ public class PlayerManager : MonoBehaviour
 			NewSpeed(topEdge, safeEdgeZone);
 		}
 		if (distance > 0.1f)
+        {
+            speed -= Time.deltaTime * maxVerticalSpeed * 0.6f;
+
+            CrashEffect(crashPosY, crashPosEdge, distance);
+        }
+        else
 		{
-			speed -= Time.deltaTime * maxVerticalSpeed * 0.6f;
-
-			if (distance < crashPosEdge)
-			{
-				NewSpeed( crashPosY,  crashPosEdge);
-			}
-
-			MoveAndRotate();
-
-			if (distance < 2.5f)
-			{
-				ParticleSystem.EmissionModule smokeEmissionModule = smoke.emission;
-				smokeEmissionModule.enabled = true;
-			}
-		}
-		else
-		{
-			crashing = false;
+			Iscrashing = false;
 			StartCoroutine("CrashEffects");
 		}
 	}
 
 	void NewSpeed(float crashPosY, float crashPosEdge)
-    {
+	{
 		newSpeed = maxVerticalSpeed * (crashPosY - thisTransform.position.y) / crashPosEdge;
 
 		if (newSpeed > speed)
 			speed = newSpeed;
 	}
+
+	private void CrashEffect(float crashPosY, float crashPosEdge, float distance)
+    {
+        if (distance < crashPosEdge)
+        {
+            NewSpeed(crashPosY, crashPosEdge);
+        }
+
+        MoveAndRotate();
+
+        if (distance < 2.5f)
+        {
+            ParticleSystem.EmissionModule smokeEmissionModule = smoke.emission;
+            smokeEmissionModule.enabled = true;
+        }
+    }
 
 	IEnumerator CrashEffects()
 	{
@@ -344,7 +351,7 @@ public class PlayerManager : MonoBehaviour
 
 	void ReviveCollected()
 	{
-		hasRevive = true;
+		IshasRevive = true;
 		GameMenuManager.Instance.RevivePicked();
 		LevelSpawnManager.Instance.powerUpManager.DisableReviveGeneration();
 	}
@@ -352,11 +359,11 @@ public class PlayerManager : MonoBehaviour
 	public IEnumerator LaunchAbracadabra()
 	{
 		abracadabra.SetActive(true);
-		powerUpUsed = true;
+		IspowerUpUsed = true;
 
 		StartCoroutine(MoveToPosition(abracadabra.transform, new Vector3(GameTransformManager.Instance.AbracadabraPosition, 0, -5), 1.25f, false));
 
-		if (!paused)
+		if (!Ispaused)
 		{
 			yield return new WaitForSeconds(2.0f);
 		}
@@ -373,7 +380,7 @@ public class PlayerManager : MonoBehaviour
 		float t = 0.0f;
 		while (t < 1.0f)
 		{
-			if (!paused)
+			if (!Ispaused)
 			{
 				t += Time.deltaTime * rate;
 				obj.localScale = Vector3.Lerp(startScale, scale, t);
@@ -393,12 +400,12 @@ public class PlayerManager : MonoBehaviour
 	{
 		shieldCollider.enabled = false;
 
-		if (!paused)
+		if (!Ispaused)
 		{
 			yield return new WaitForSeconds(0.5f);
 		}
 
-		shieldActive = false;
+		IsshieldActive = false;
 
 		characterAnimator.Play("player");
 	}
@@ -412,7 +419,7 @@ public class PlayerManager : MonoBehaviour
 
 		while (i < 1.0)
 		{
-			if (!paused)
+			if (!Ispaused)
 			{
 				i += Time.deltaTime * rate;
 				obj.position = Vector3.Lerp(startPos, endPos, i);
@@ -423,18 +430,18 @@ public class PlayerManager : MonoBehaviour
 
 		if (enableControls)
 		{
-			controlEnabled = true;
+			IscontrolEnabled = true;
 		}
 	}
 
 	public void ExtraSpeed()
 	{
-		if (inExtraSpeed || crashing || !controlEnabled)
+		if (IsinExtraSpeed || Iscrashing || !IscontrolEnabled)
 			return;
 
-		powerUpUsed = true;
-		inExtraSpeed = true;
-		canCrash = false;
+		IspowerUpUsed = true;
+		IsinExtraSpeed = true;
+		IsCrash = false;
 
 		speedParticle.SetActive(true);
 		speedTrail.SetActive(true);
@@ -448,14 +455,14 @@ public class PlayerManager : MonoBehaviour
 		float newSpeed = LevelSpawnManager.Instance.scrollSpeed;
 		LevelSpawnManager.Instance.scrollSpeed = 3;
 
-		if (!paused)
+		if (!Ispaused)
 		{
 			yield return new WaitForSeconds(time);
 		}
 
 		LevelSpawnManager.Instance.scrollSpeed = newSpeed;
-		inExtraSpeed = false;
-		canCrash = true;
+		IsinExtraSpeed = false;
+		IsCrash = true;
 
 		speedParticle.SetActive(false);
 		speedTrail.SetActive(false);
@@ -465,34 +472,34 @@ public class PlayerManager : MonoBehaviour
 
 	public void RaiseShield()
 	{
-		if (shieldActive || crashing || !controlEnabled)
+		if (IsshieldActive || Iscrashing || !IscontrolEnabled)
 			return;
 
-		powerUpUsed = true;
-		shieldActive = true;
+		IspowerUpUsed = true;
+		IsshieldActive = true;
 		characterAnimator.Play("shield");
 	}
 
 	public void MoveUp()
 	{
-		if (distanceToTop > 0 && controlEnabled)
-			movingUpward = true;
+		if (distanceToTop > 0 && IscontrolEnabled)
+			IsmovingUpward = true;
 	}
 
 	public void MoveDown()
 	{
-		if (distanceToBottom > 0 && controlEnabled)
-			movingUpward = false;
+		if (distanceToBottom > 0 && IscontrolEnabled)
+			IsmovingUpward = false;
 	}
 
 	public void DisableControls()
 	{
-		controlEnabled = false;
+		IscontrolEnabled = false;
 	}
 
 	public void EnableControls()
 	{
-		controlEnabled = true;
+		IscontrolEnabled = true;
 	}
 
 	public void ResetStatus(bool moveToStart)
@@ -500,21 +507,21 @@ public class PlayerManager : MonoBehaviour
 		StopAllCoroutines();
 
 		speed = 0;
-		crashed = false;
-		paused = false;
-		movingUpward = false;
-		canCrash = true;
+		Iscrashed = false;
+		Ispaused = false;
+		IsmovingUpward = false;
+		IsCrash = true;
 
-		inRevive = false;
-		hasRevive = false;
-		shopReviveUsed = false;
-		inExtraSpeed = false;
-		shieldActive = false;
-		powerUpUsed = false;
+		IsinRevive = false;
+		IshasRevive = false;
+		IsshopReviveUsed = false;
+		IsinExtraSpeed = false;
+		IsshieldActive = false;
+		IspowerUpUsed = false;
 
 		speedParticle.SetActive(false);
 		speedTrail.SetActive(false);
-		firstObstacleSpawned = false;
+		IsfirstObstacleSpawned = false;
 
 		newRotation = new Vector3(0, 0, 0);
 
@@ -529,22 +536,22 @@ public class PlayerManager : MonoBehaviour
 
 	public void Pause()
 	{
-		paused = true;
+		Ispaused = true;
 	}
 
 	public void Resume()
 	{
-		paused = false;
+		Ispaused = false;
 	}
 
 	public bool IsCrashed()
 	{
-		return crashed;
+		return Iscrashed;
 	}
 
 	public bool HasRevive()
 	{
-		if (hasRevive || (PreferencesManager.Instance.GetRevive() > 0 && !shopReviveUsed))
+		if (IshasRevive || (PreferencesManager.Instance.GetRevive() > 0 && !IsshopReviveUsed))
 			return true;
 		else
 			return false;
@@ -552,7 +559,7 @@ public class PlayerManager : MonoBehaviour
 
 	public bool PowerUpUsed()
 	{
-		return powerUpUsed;
+		return IspowerUpUsed;
 	}
 
 	public void SetPositions(float starting, float main)
@@ -563,10 +570,10 @@ public class PlayerManager : MonoBehaviour
 
 	public IEnumerator Revive()
 	{
-		if (!inRevive)
+		if (!IsinRevive)
 		{
-			inRevive = true;
-			powerUpUsed = true;
+			IsinRevive = true;
+			IspowerUpUsed = true;
 
 			IsRevive();
 
@@ -584,11 +591,11 @@ public class PlayerManager : MonoBehaviour
 			yield return new WaitForSeconds(1.2f);
 			LevelSpawnManager.Instance.ContinueScrolling();
 
-			crashed = false;
-			canCrash = true;
-			controlEnabled = true;
-			movingUpward = false;
-			inRevive = false;
+			Iscrashed = false;
+			IsCrash = true;
+			IscontrolEnabled = true;
+			IsmovingUpward = false;
+			IsinRevive = false;
 		}
 
 		yield return new WaitForEndOfFrame();
@@ -596,16 +603,14 @@ public class PlayerManager : MonoBehaviour
 
 	void IsRevive()
     {
-		if (hasRevive)
+		if (IshasRevive)
 		{
-			hasRevive = false;
+			IshasRevive = false;
 			GameMenuManager.Instance.DisableReviveGUI(0);
+			return;
 		}
-		else
-		{
-			shopReviveUsed = true;
-			PreferencesManager.Instance.ModifyReviveBy(-1);
-			GameMenuManager.Instance.DisableReviveGUI(1);
-		}
+		IsshopReviveUsed = true;
+		PreferencesManager.Instance.ModifyReviveBy(-1);
+		GameMenuManager.Instance.DisableReviveGUI(1);
 	}
 }

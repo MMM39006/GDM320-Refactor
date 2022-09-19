@@ -4,6 +4,8 @@ using UnityEngine.Advertisements;
 
 public class GameMenuManager : MonoBehaviour
 {
+
+
 	public Renderer overlay;
 
 	[Header("Scalable Element Settings")]
@@ -45,23 +47,23 @@ public class GameMenuManager : MonoBehaviour
 	static GameMenuManager _instance;
 	static int instances = 0;
 
-	bool showMainGUI = false;
-	bool showPause = false;
-	bool mainMenuTopHidden = true;
-	public bool audioEnabled = true;
-	bool mainMissionHidden = true;
-	bool shopHidden = true;
-	bool aboutHidden = true;
-	bool areYouSureHidden = true;
+	bool IsshowMainGUI = false;
+	public bool IsshowPause = false;
+	bool IsmainMenuTopHidden = true;
+	public bool IsaudioEnabled = true;
+	bool IsmainMissionHidden = true;
+	bool IsshopHidden = true;
+	bool IsaboutHidden = true;
+	bool IsareYouSureHidden = true;
 
-	bool starting = false;
-	bool reviveActivated = false;
+	bool Isstarting = false;
+	bool IsreviveActivated = false;
 
-	bool canClick = true;
+	bool IscanClick = true;
 
-	bool mNotification1Used = false;
-	bool mNotification2Used = false;
-	bool mNotification3Used = false;
+	bool IsmNotification1Used = false;
+	bool IsmNotification2Used = false;
+	bool IsmNotification3Used = false;
 
 	public int restartCount = 0;
 
@@ -85,9 +87,11 @@ public class GameMenuManager : MonoBehaviour
 	void WarningGameMenuManager()
     {
 		if (instances > 1)
+        {
 			Debug.LogWarning("Warning: There are more than one GameMenuManager at the level");
-		else
-			_instance = this;
+			return;
+		}
+		_instance = this;
 	}
 
 	void Update()
@@ -97,7 +101,7 @@ public class GameMenuManager : MonoBehaviour
 
 	void ShowMainGui()
     {
-		if (showMainGUI && !showPause)
+		if (IsshowMainGUI && !IsshowPause)
 		{
 			DisplayStatistics(guiTexts[0], LevelManager.Instance.Coins(), 4);
 			DisplayStatistics(guiTexts[1], (int)LevelSpawnManager.Instance.distance, 5);
@@ -136,7 +140,7 @@ public class GameMenuManager : MonoBehaviour
 
 		PlayerManager.Instance.Pause();
 		LevelManager.Instance.PauseGame();
-		showPause = true;
+		IsshowPause = true;
 
 		pauseElements[0].SetActive(true);
 
@@ -149,43 +153,43 @@ public class GameMenuManager : MonoBehaviour
 
 	void ToggleMainMenuArrow(Material arrow)
 	{
-		if (mainMenuTopHidden)
+		if (IsmainMenuTopHidden)
 		{
-			mainMenuTopHidden = false;
+			IsmainMenuTopHidden = false;
 			arrow.mainTexture = menuTextures[1];
 			StartCoroutine(FadeScreen(0.25f, 0.7f));
 			StartCoroutine(MoveMenu(mainMenuElements[1].transform, 0, 22, 0.25f, false));
+			return;
 		}
-		else if (!mainMissionHidden)
+		if (!IsmainMissionHidden)
 		{
-			mainMissionHidden = true;
+			IsmainMissionHidden = true;
 			StartCoroutine(MoveMenu(mainMenuElements[3].transform, 0, -31, 0.4f, false));
+			return;
 		}
-		else
-		{
-			mainMenuTopHidden = true;
-			arrow.mainTexture = menuTextures[0];
-			StartCoroutine(FadeScreen(0.25f, 0));
-			StartCoroutine(MoveMenu(mainMenuElements[1].transform, 0, 32, 0.25f, false));
-		}
+
+		IsmainMenuTopHidden = true;
+		arrow.mainTexture = menuTextures[0];
+		StartCoroutine(FadeScreen(0.25f, 0));
+		StartCoroutine(MoveMenu(mainMenuElements[1].transform, 0, 32, 0.25f, false));
 	}
 
 	public void ToggleAudio(Material audioButton)
 	{
-		if (!shopHidden)
+		if (!IsshopHidden)
 			return;
 
-		if (audioEnabled)
+		if (IsaudioEnabled)
 		{
 			SoundManager.Instance.SetMusicVolume(0.0f);
-			audioEnabled = false;
+			IsaudioEnabled = false;
 			audioButton.mainTexture = menuTextures[3];
 		}
 		else
 		{
 			SoundManager.Instance.SetMusicVolume(1.0f);
 			audioButton.mainTexture = menuTextures[2];
-			audioEnabled = true;
+			IsaudioEnabled = true;
 		}
 
 		SoundManager.Instance.CheckVolumeButtons();
@@ -193,68 +197,49 @@ public class GameMenuManager : MonoBehaviour
 
 	void ToggleMainMissionList()
 	{
-		if (!shopHidden)
+		if (!IsshopHidden)
 			return;
 
-		if (mainMissionHidden)
+		if (IsmainMissionHidden)
 		{
-			mainMissionHidden = false;
+			IsmainMissionHidden = false;
 			StartCoroutine(MoveMenu(mainMenuElements[3].transform, 0, -75, 0.4f, false));
+			return;
 		}
-		else
-		{
-			mainMissionHidden = true;
-			StartCoroutine(MoveMenu(mainMenuElements[3].transform, 0, -31, 0.4f, false));
-		}
+		IsmainMissionHidden = true;
+		StartCoroutine(MoveMenu(mainMenuElements[3].transform, 0, -31, 0.4f, false));
 	}
 
 	void ToggleShopMenu()
-	{
-		if (shopHidden)
-		{
-			UpdateShop();
-			SoundManager.Instance.PauseMusic();
-			shopHidden = false;
-			StartCoroutine(MoveMenu(mainMenuElements[2].transform, 0, -21.85f, 0.45f, false));
-		}
-		else
-		{
-			shopHidden = true;
-			StartCoroutine(MoveMenu(mainMenuElements[2].transform, 0, -94, 0.45f, false));
-		}
-		mainMenuElements[1].SetActive(shopHidden);
-	}
+    {
+        HiddenMenu(IsshopHidden,2);
+    }
 
-	void ToggleAboutUs()
+    private void HiddenMenu(bool MenuToshow, int Elements)
+    {
+        if (MenuToshow)
+        {
+            UpdateShop();
+            SoundManager.Instance.PauseMusic();
+			MenuToshow = false;
+            StartCoroutine(MoveMenu(mainMenuElements[Elements].transform, 0, -21.85f, 0.45f, false));
+        }
+        else
+        {
+			MenuToshow = true;
+            StartCoroutine(MoveMenu(mainMenuElements[Elements].transform, 0, -94, 0.45f, false));
+        }
+        mainMenuElements[1].SetActive(MenuToshow);
+    }
+
+    void ToggleAboutUs()
 	{
-		if (aboutHidden)
-		{
-			aboutHidden = false;
-			SoundManager.Instance.PauseMusic();
-			StartCoroutine(MoveMenu(mainMenuElements[8].transform, 0, -21.85f, 0.45f, false));
-		}
-		else
-		{
-			aboutHidden = true;
-			StartCoroutine(MoveMenu(mainMenuElements[8].transform, 0, -94, 0.45f, false));
-		}
-		mainMenuElements[1].SetActive(aboutHidden);
+		HiddenMenu(IsaboutHidden, 8);
 	}
 
 	void ToggleAreYouSure()
 	{
-		if (areYouSureHidden)
-		{
-			areYouSureHidden = false;
-			SoundManager.Instance.PauseMusic();
-			StartCoroutine(MoveMenu(mainMenuElements[9].transform, 0, -21.85f, 0.45f, false));
-		}
-		else
-		{
-			areYouSureHidden = true;
-			StartCoroutine(MoveMenu(mainMenuElements[9].transform, 0, -94, 0.45f, false));
-		}
-		mainMenuElements[1].SetActive(areYouSureHidden);
+		HiddenMenu(IsareYouSureHidden, 9);
 	}
 
 	public void UpdateShop()
@@ -283,14 +268,14 @@ public class GameMenuManager : MonoBehaviour
 
 	public void RewardCoin(double amount)
 	{
-		PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() + System.Convert.ToInt32(amount));
+		PreferencesManager.Instance.AddCoins(System.Convert.ToInt32(amount));
 	}
 
 	void BuySpeedPowerup()
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[0])
 		{
-			PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() - shopPrices[0]);
+			PreferencesManager.Instance.ReduceCoins(shopPrices[0]);
 			PreferencesManager.Instance.ModifyExtraSpeedBy(1);
 			FirebaseEventManager.Instance.SendSpendVirtualCurrency();
 
@@ -303,7 +288,7 @@ public class GameMenuManager : MonoBehaviour
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[1])
 		{
-			PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() - shopPrices[1]);
+			PreferencesManager.Instance.ReduceCoins(shopPrices[0]);
 			PreferencesManager.Instance.ModifyShieldBy(1);
 			FirebaseEventManager.Instance.SendSpendVirtualCurrency();
 
@@ -316,7 +301,7 @@ public class GameMenuManager : MonoBehaviour
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[2])
 		{
-			PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() - shopPrices[2]);
+			PreferencesManager.Instance.ReduceCoins(shopPrices[0]);
 			PreferencesManager.Instance.ModifyAbracadabraBy(1);
 			FirebaseEventManager.Instance.SendSpendVirtualCurrency();
 
@@ -329,7 +314,7 @@ public class GameMenuManager : MonoBehaviour
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[3])
 		{
-			PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() - shopPrices[3]);
+			PreferencesManager.Instance.ReduceCoins(shopPrices[0]);
 			PreferencesManager.Instance.ModifyReviveBy(1);
 			FirebaseEventManager.Instance.SendSpendVirtualCurrency();
 
@@ -341,7 +326,7 @@ public class GameMenuManager : MonoBehaviour
 	//Activate the extra speed powerup at startup
 	void ActivateSpeedPowerup()
 	{
-		if (showPause)
+		if (IsshowPause)
 			return;
 
 		StartCoroutine(MoveMenu(startPowerUps[0].transform, startPowerUps[0].transform.localPosition.x, -45, 0.4f, true));
@@ -355,7 +340,7 @@ public class GameMenuManager : MonoBehaviour
 	//Activate the shield powerup at startup
 	void ActivateShieldPowerup()
 	{
-		if (showPause)
+		if (IsshowPause)
 			return;
 
 		StartCoroutine(MoveMenu(startPowerUps[1].transform, startPowerUps[1].transform.localPosition.x, -45, 0.4f, true));
@@ -369,7 +354,7 @@ public class GameMenuManager : MonoBehaviour
 	//Activate the abracadabra powerup at startup
 	void ActivateAbracadabraPowerup()
 	{
-		if (showPause)
+		if (IsshowPause)
 			return;
 
 		StartCoroutine(MoveMenu(startPowerUps[2].transform, startPowerUps[2].transform.localPosition.x, -45, 0.4f, true));
@@ -383,30 +368,29 @@ public class GameMenuManager : MonoBehaviour
 	//Activate the revive powerup at crash
 	void ActivateRevivePowerup()
 	{
-		reviveActivated = true;
+		IsreviveActivated = true;
 	}
 
 	void StartToPlay()
 	{
 		mainMenuElements[10].SetActive(false);
 
-		if (!mainMissionHidden || !shopHidden || starting || !aboutHidden || !areYouSureHidden)
+		if (!IsmainMissionHidden || !IsshopHidden || Isstarting || !IsaboutHidden || !IsareYouSureHidden)
 			return;
 
-		starting = true;
+		Isstarting = true;
 
 		if (PreferencesManager.Instance.GetRevive() > 0)
 			mainGUIElements[2].SetActive(true);
 
-		if (!mainMenuTopHidden)
+		if (!IsmainMenuTopHidden)
 		{
 			StartCoroutine(FadeScreen(0.25f, 0));
 			StartCoroutine(MoveMenu(mainMenuElements[1].transform, 0, 32, 0.25f, true));
+			return;
 		}
-		else
-		{
-			mainMenuElements[1].SetActive(false);
-		}
+		mainMenuElements[1].SetActive(false);
+
 
 		PlayerManager.Instance.startAnimation.GetComponent<Animator>().enabled = true;
 		SoundManager.Instance.StartMusic();
@@ -415,7 +399,7 @@ public class GameMenuManager : MonoBehaviour
 	IEnumerator SpawnObstacles()
 	{
 		yield return new WaitForSeconds(5);
-		PlayerManager.Instance.firstObstacleSpawned = true;
+		PlayerManager.Instance.IsfirstObstacleSpawned = true;
 		LevelSpawnManager.Instance.SpawnObstacles();
 	}
 
@@ -426,7 +410,7 @@ public class GameMenuManager : MonoBehaviour
 		StartCoroutine(MoveMenu(pauseElements[2].transform, 0, -60, 0.45f, false));
 
 		yield return new WaitForSeconds(0.6f);
-		showPause = false;
+		IsshowPause = false;
 
 		PlayerManager.Instance.Resume();
 		LevelManager.Instance.ResumeGame();
@@ -449,9 +433,9 @@ public class GameMenuManager : MonoBehaviour
 
 	void IsShowPause()
     {
-		if (showPause)
+		if (IsshowPause)
 		{
-			showPause = false;
+			IsshowPause = false;
 			StartCoroutine(MoveMenu(pauseElements[1].transform, 0, 59, 0.45f, false));
 			StartCoroutine(MoveMenu(pauseElements[2].transform, 0, -60, 0.45f, false));
 		}
@@ -475,7 +459,7 @@ public class GameMenuManager : MonoBehaviour
 
 	IEnumerator QuitToMain()
 	{
-		starting = false;
+		Isstarting = false;
 		StartCoroutine(FadeScreen(0.4f, 1.0f));
 
 		IsShowPause();
@@ -498,9 +482,9 @@ public class GameMenuManager : MonoBehaviour
 		SoundManager.Instance.StopMusic();
 	}
 	//---------------------------------------------------------------------------
-	IEnumerator MoveMenu(Transform menuTransform, float endPosX, float endPosY, float time, bool hide)
+	public IEnumerator MoveMenu(Transform menuTransform, float endPosX, float endPosY, float time, bool hide)
 	{
-		canClick = false;
+		IscanClick = false;
 
 		float i = 0.0f;
 		float rate = 1.0f / time;
@@ -518,45 +502,46 @@ public class GameMenuManager : MonoBehaviour
 		if (hide)
 			menuTransform.gameObject.SetActive(false);
 
-		canClick = true;
+		IscanClick = true;
 	}
 
 	IEnumerator MovePowerUpSelection(bool speed, bool shield, bool abracadabra)
-	{
-		yield return new WaitForSeconds(3.0f);
+    {
+        yield return new WaitForSeconds(3.0f);
 
-		if (speed)
-			StartCoroutine(MoveMenu(startPowerUps[0].transform, startPowerUps[0].transform.localPosition.x, -28.5f, 0.4f, false));
-		if (shield)
-			StartCoroutine(MoveMenu(startPowerUps[1].transform, startPowerUps[1].transform.localPosition.x, -28.5f, 0.4f, false));
-		if (abracadabra)
-			StartCoroutine(MoveMenu(startPowerUps[2].transform, startPowerUps[2].transform.localPosition.x, -28.5f, 0.4f, false));
+        MenuPosition(speed, shield, abracadabra,-28.5f,false);
 
-		if (!showPause)
-		{
-			yield return new WaitForSeconds(10.0f);
-		}
+        if (!IsshowPause)
+        {
+            yield return new WaitForSeconds(10.0f);
+        }
 
-		if (speed)
-			StartCoroutine(MoveMenu(startPowerUps[0].transform, startPowerUps[0].transform.localPosition.x, -45, 0.4f, true));
-		if (shield)
-			StartCoroutine(MoveMenu(startPowerUps[1].transform, startPowerUps[1].transform.localPosition.x, -45, 0.4f, true));
-		if (abracadabra)
-			StartCoroutine(MoveMenu(startPowerUps[2].transform, startPowerUps[2].transform.localPosition.x, -45, 0.4f, true));
+		MenuPosition(speed, shield, abracadabra, -45f, false);
+
 
 		yield return new WaitForSeconds(0.4f);
 
-		StopCoroutine("MovePowerUpSelection");
-	}
+        StopCoroutine("MovePowerUpSelection");
+    }
 
-	public void SetLevelResolution()
+    private void MenuPosition(bool speed, bool shield, bool abracadabra,float positionMove,bool Ishide)
+    {
+        if (speed)
+            StartCoroutine(MoveMenu(startPowerUps[0].transform, startPowerUps[0].transform.localPosition.x, positionMove, 0.4f, false));
+        if (shield)
+            StartCoroutine(MoveMenu(startPowerUps[1].transform, startPowerUps[1].transform.localPosition.x, positionMove, 0.4f, false));
+        if (abracadabra)
+            StartCoroutine(MoveMenu(startPowerUps[2].transform, startPowerUps[2].transform.localPosition.x, positionMove, 0.4f, false));
+    }
+
+    public void SetLevelResolution()
 	{
 		GameTransformManager.Instance.SetGameTransformByAspectRatio(scalables, shopElements, headerLefts, mainGUILefts, headerRights, mainGUIRights, backButtons, mainMenuElements[0], mainMenuElements[10], LevelSpawnManager.Instance.galata, mainMenuElements[11]);
 	}
 
 	public void ButtonDown(Transform button)
 	{
-		if (!canClick)
+		if (!IscanClick)
 			return;
 
 		Vector3 scale = button.transform.localScale;
@@ -565,7 +550,7 @@ public class GameMenuManager : MonoBehaviour
 
 	public void ButtonUp(Transform button)
 	{
-		if (!canClick)
+		if (!IscanClick)
 			return;
 
 		Vector3 scale = button.transform.localScale;
@@ -690,83 +675,89 @@ public class GameMenuManager : MonoBehaviour
 	}
 
 	public void ShowStartPowerUps()
-	{
-		bool hasSpeed = PreferencesManager.Instance.GetExtraSpeed() > 0;
-		bool hasShield = PreferencesManager.Instance.GetShield() > 0;
-		bool hasAbracadabra = PreferencesManager.Instance.GetAbracadabra() > 0;
+    {
+        bool hasSpeed = PreferencesManager.Instance.GetExtraSpeed() > 0;
+        bool hasShield = PreferencesManager.Instance.GetShield() > 0;
+        bool hasAbracadabra = PreferencesManager.Instance.GetAbracadabra() > 0;
 
-		int numberOfPowerUps = 0;
+        int numberOfPowerUps = 0;
 
-		if (hasSpeed)
-			numberOfPowerUps++;
-		if (hasShield)
-			numberOfPowerUps++;
-		if (hasAbracadabra)
-			numberOfPowerUps++;
+        if (hasSpeed)
+            numberOfPowerUps++;
+        if (hasShield)
+            numberOfPowerUps++;
+        if (hasAbracadabra)
+            numberOfPowerUps++;
 
-		if (numberOfPowerUps == 1)
-		{
-			if (hasSpeed)
-			{
-				startPowerUps[0].transform.localPosition = new Vector3(0, -40, 0);
-				startPowerUps[0].SetActive(true);
-			}
-			else if (hasShield)
-			{
-				startPowerUps[1].transform.localPosition = new Vector3(0, -40, 0);
-				startPowerUps[1].SetActive(true);
-			}
-			else
-			{
-				startPowerUps[2].transform.localPosition = new Vector3(0, -40, 0);
-				startPowerUps[2].SetActive(true);
-			}
-		}
-		else if (numberOfPowerUps == 2)
-		{
-			if (hasSpeed)
-			{
-				startPowerUps[0].transform.localPosition = new Vector3(-7.5f, -40, 0);
-				startPowerUps[0].SetActive(true);
-			}
-			if (hasShield)
-			{
-				if (hasSpeed)
-					startPowerUps[1].transform.localPosition = new Vector3(7.5f, -40, 0);
-				else
-					startPowerUps[1].transform.localPosition = new Vector3(-7.5f, -40, 0);
+        NumberPowerUp(hasSpeed, hasShield, hasAbracadabra, numberOfPowerUps);
 
-				startPowerUps[1].SetActive(true);
-			}
-			if (hasAbracadabra)
-			{
-				startPowerUps[2].transform.localPosition = new Vector3(7.5f, -40, 0);
-				startPowerUps[2].SetActive(true);
-			}
-		}
-		else if (numberOfPowerUps == 3)
-		{
-			startPowerUps[0].transform.localPosition = new Vector3(-15, -40, 0);
-			startPowerUps[0].SetActive(true);
-			startPowerUps[1].transform.localPosition = new Vector3(0, -40, 0);
-			startPowerUps[1].SetActive(true);
-			startPowerUps[2].transform.localPosition = new Vector3(15, -40, 0);
+        StartCoroutine(MovePowerUpSelection(hasSpeed, hasShield, hasAbracadabra));
+    }
+
+    private void NumberPowerUp(bool hasSpeed, bool hasShield, bool hasAbracadabra, int numberOfPowerUps)
+    {
+        if (numberOfPowerUps == 1)
+        {
+            if (hasSpeed)
+            {
+                startPowerUps[0].transform.localPosition = new Vector3(0, -40, 0);
+                startPowerUps[0].SetActive(true);
+				return;
+            }
+            if (hasShield)
+            {
+                startPowerUps[1].transform.localPosition = new Vector3(0, -40, 0);
+                startPowerUps[1].SetActive(true);
+				return;
+            }
+			startPowerUps[2].transform.localPosition = new Vector3(0, -40, 0);
 			startPowerUps[2].SetActive(true);
-		}
+			return;
+        }
+        if (numberOfPowerUps == 2)
+        {
+            if (hasSpeed)
+            {
+                startPowerUps[0].transform.localPosition = new Vector3(-7.5f, -40, 0);
+                startPowerUps[0].SetActive(true);
+            }
+            if (hasShield)
+            {
+                if (hasSpeed)
+                    startPowerUps[1].transform.localPosition = new Vector3(7.5f, -40, 0);
+                else
+                    startPowerUps[1].transform.localPosition = new Vector3(-7.5f, -40, 0);
 
-		StartCoroutine(MovePowerUpSelection(hasSpeed, hasShield, hasAbracadabra));
-	}
+                startPowerUps[1].SetActive(true);
+            }
+            if (hasAbracadabra)
+            {
+                startPowerUps[2].transform.localPosition = new Vector3(7.5f, -40, 0);
+                startPowerUps[2].SetActive(true);
+            }
+			return;
+        }
+        if (numberOfPowerUps == 3)
+        {
+            startPowerUps[0].transform.localPosition = new Vector3(-15, -40, 0);
+            startPowerUps[0].SetActive(true);
+            startPowerUps[1].transform.localPosition = new Vector3(0, -40, 0);
+            startPowerUps[1].SetActive(true);
+            startPowerUps[2].transform.localPosition = new Vector3(15, -40, 0);
+            startPowerUps[2].SetActive(true);
+			return;
+        }
+    }
 
-
-	public void ActivateMainGUI()
+    public void ActivateMainGUI()
 	{
-		showMainGUI = true;
+		IsshowMainGUI = true;
 		mainGUIElements[0].SetActive(true);
 	}
 
 	public void DeactivateMainGUI()
 	{
-		showMainGUI = false;
+		IsshowMainGUI = false;
 		mainGUIElements[0].SetActive(false);
 	}
 
@@ -802,45 +793,42 @@ public class GameMenuManager : MonoBehaviour
 		if (text1.Length < 26)
 		{
 			MissionFontSize(20, 0, 1, 2);
+			return;
 		}
-		else if (text1.Length < 31)
+		if (text1.Length < 31)
 		{
 			MissionFontSize(18, 0, 1, 2);
+			return;
 		}
-		else
-		{
-			MissionFontSize(14, 0, 1, 2);
-		}
+		MissionFontSize(14, 0, 1, 2);
 
 		MissionText(text1, 0, 1, 2);
 
 		if (text2.Length < 26)
 		{
 			MissionFontSize(20, 3, 4, 5);
+			return;
 		}
-		else if (text2.Length < 31)
+		if (text2.Length < 31)
 		{
 			MissionFontSize(18, 3, 4, 5);
+			return;
 		}
-		else
-		{
-			MissionFontSize(14, 3, 4, 5);
-		}
+		MissionFontSize(14, 3, 4, 5);
 		MissionText(text2, 3, 4, 5);
 
 
 		if (text3.Length < 26)
 		{
 			MissionFontSize(20, 6, 7, 8);
+			return;
 		}
-		else if (text3.Length < 31)
+		if (text3.Length < 31)
 		{
 			MissionFontSize(18, 6, 7, 8);
+			return;
 		}
-		else
-		{
-			MissionFontSize(14, 6, 7, 8);
-		}
+		MissionFontSize(14, 6, 7, 8);
 		MissionText(text3, 6, 7, 8);
 	}
 
@@ -895,14 +883,14 @@ public class GameMenuManager : MonoBehaviour
 		{
 			waited += Time.deltaTime;
 
-			if (reviveActivated)
+			if (IsreviveActivated)
 			{
 				yield return new WaitForSeconds(0.2f);
 				StartCoroutine(MoveMenu(startPowerUps[3].transform, startPowerUps[3].transform.localPosition.x, -45, 0.4f, false));
 
 				yield return new WaitForSeconds(0.4f);
 				LevelManager.Instance.Revive();
-				reviveActivated = false;
+				IsreviveActivated = false;
 				activated = true;
 			}
 
@@ -926,15 +914,15 @@ public class GameMenuManager : MonoBehaviour
 		int notificationIndex = 0;
 		float yPosTarget = 0;
 
-		if (!mNotification1Used)
+		if (!IsmNotification1Used)
 		{
 			Notification(notificationObject, notificationTextMesh, 0, 1, 32);
 		}
-		else if (mNotification1Used && !mNotification2Used)
+		else if (IsmNotification1Used && !IsmNotification2Used)
 		{
 			Notification(notificationObject, notificationTextMesh, 1, 2, 26);
 		}
-		else if (mNotification1Used && mNotification2Used && !mNotification3Used)
+		else if (IsmNotification1Used && IsmNotification2Used && !IsmNotification3Used)
 		{
 			Notification(notificationObject, notificationTextMesh, 2, 3, 20);
 		}
@@ -943,20 +931,28 @@ public class GameMenuManager : MonoBehaviour
 			StopCoroutine("ShowMissionComplete");
 		}
 
-		notificationTextsize( text, notificationTextMesh);
+		if (text.Length < 26)
+			notificationTextMesh.fontSize = 24;
+		else if (text.Length < 31)
+			notificationTextMesh.fontSize = 21;
+		else if (text.Length < 36)
+			notificationTextMesh.fontSize = 19;
+		else
+			notificationTextMesh.fontSize = 14;
+		//notificationTextsize( text, notificationTextMesh);
 
 		notificationTextMesh.text = text;
 
 		StartCoroutine(MoveMenu(notificationObject.transform, 0, yPosTarget, 0.4f, false));
 
-		if (!showPause)
+		if (!IsshowPause)
 		{
 			yield return new WaitForSeconds(2.0f);
 		}
 
 		StartCoroutine(MoveMenu(notificationObject.transform, 0, 38.5f, 0.4f, false));
 
-		if (!showPause)
+		if (!IsshowPause)
 		{
 			yield return new WaitForSeconds(0.5f);
 		}
@@ -969,7 +965,7 @@ public class GameMenuManager : MonoBehaviour
 		notificationObject = missionNotification[missionNotificationIndex];
 		notificationTextMesh = notificationObject.transform.Find("Text").GetComponent<TextMesh>() as TextMesh;
 
-		mNotification1Used = true;
+		IsmNotification1Used = true;
 		notificationIndex = 1;
 		yPosTarget = 32;
 	}
@@ -989,11 +985,11 @@ public class GameMenuManager : MonoBehaviour
 	void IndexNotification(int notificationIndex)
     {
 		if (notificationIndex == 1)
-			mNotification1Used = false;
+			IsmNotification1Used = false;
 		else if (notificationIndex == 2)
-			mNotification2Used = false;
+			IsmNotification2Used = false;
 		else if (notificationIndex == 3)
-			mNotification3Used = false;
+			IsmNotification3Used = false;
 	}
 
 	public IEnumerator FadeScreen(float time, float to)

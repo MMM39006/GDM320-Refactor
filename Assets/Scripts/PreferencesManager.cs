@@ -207,6 +207,16 @@ public class PreferencesManager : MonoBehaviour
 		PlayerPrefs.Save();
 	}
 
+	public void AddCoins(int count)
+    {
+		SetCoins(GetCoins() + count);
+    }
+
+	public void ReduceCoins(int count)
+    {
+		SetCoins(GetCoins() - count);
+    }
+
 	public void SetBestDistance(int distance)
 	{
 		bestDistance = distance;

@@ -39,14 +39,14 @@ public class LevelSpawnManager : MonoBehaviour
 
 	float galataPos = 39;
 
-	bool canSpawnPowerUp = true;
-	bool canSpawnBirdTraffic = true;
+	bool IscanSpawnPowerUp = true;
+	bool IsCanSpawnBirdTraffic = true;
 
-	bool canSpawn = false;
-	bool paused = true;
+	bool Iscanspawn = false;
+	bool Ispaused = true;
 
-	bool scrollGalata = true;
-	bool canModifySpeed = true;
+	bool IsscrollGalata = true;
+	bool IsCanModifySpeed = true;
 
 	public static LevelSpawnManager Instance
 	{
@@ -97,7 +97,7 @@ public class LevelSpawnManager : MonoBehaviour
 
 	void IsInvertPaused()
     {
-		if (!paused)
+		if (!Ispaused)
 		{
 			distance += scrollSpeed * Time.deltaTime * 25;
 			MissionManager.Instance.DistanceEvent((int)distance);
@@ -106,54 +106,126 @@ public class LevelSpawnManager : MonoBehaviour
 
 	void IscanSpawn()
     {
-		if (canSpawn && !paused)
+		if (Iscanspawn && !Ispaused)
+        {
+            IscanSpawnPowerup();
+            IscanSpawnBirdTraffic();
+            ScrollLevel();
+        }
+    }
+
+    private void IscanSpawnBirdTraffic()
+    {
+        if (IsCanSpawnBirdTraffic)
+        {
+            StartCoroutine(SpawnBirdTraffic());
+        }
+    }
+
+	IEnumerator SpawnBirdTraffic()
+	{
+		IsCanSpawnBirdTraffic = false;
+
+		int frequency = Random.Range(15, 35);
+
+		if (!Ispaused)
 		{
-			if (canSpawnPowerUp)
-			{
-				StartCoroutine(SpawnPowerUp());
-			}
-
-			if (canSpawnBirdTraffic)
-			{
-				StartCoroutine(SpawnBirdTraffic());
-			}
-
-			ScrollLevel();
+			yield return new WaitForSeconds(frequency);
 		}
+
+		if (distance < 1000)
+		{
+			frequency = Random.Range(10, 30);
+		}
+		else
+		{
+			frequency = Random.Range(10, 40);
+		}
+
+		frequency = frequency / 10;
+
+		for (int i = 0; i < frequency; i++)
+		{
+			birdTrafficManager.LaunchBird();
+
+			if (!Ispaused)
+			{
+				yield return new WaitForSeconds(1.0f);
+			}
+
+		}
+		IsCanSpawnBirdTraffic = true;
+	}
+
+	private void IscanSpawnPowerup()
+    {
+        if (IscanSpawnPowerUp)
+        {
+            StartCoroutine(SpawnPowerUp());
+        }
+    }
+
+	IEnumerator SpawnPowerUp()
+	{
+		IscanSpawnPowerUp = false;
+
+		int frequency = Random.Range(10, 30);
+
+		if (!Ispaused)
+		{
+			yield return new WaitForSeconds(frequency);
+		}
+
+		powerUpManager.SpawnPowerUp(scrollSpeed / defaultScrollSpeed);
+		IscanSpawnPowerUp = true;
 	}
 
 	void ScrollLevel()
+    {
+        IscanModifySpeed();
+
+        scrollCloudSpeed = scrollSpeed * 12.5f;
+        scrollBackgroundSpeed = scrollCloudSpeed * 3;
+        scrollForegroundSpeed = scrollCloudSpeed * 8;
+        LoopElenents();
+        IsScrollGalata();
+
+        scrolling.x = scrollSpeed;
+
+        ground.material.mainTextureOffset += scrolling * Time.deltaTime;
+    }
+
+    private void IscanModifySpeed()
+    {
+        if (IsCanModifySpeed)
+        {
+            scrollSpeed = defaultScrollSpeed + (((maxScrollSpeedDist - (maxScrollSpeedDist - distance)) / maxScrollSpeedDist) * (maxScrollSpeed - defaultScrollSpeed));
+        }
+    }
+
+	private void LoopElenents()
 	{
-		if (canModifySpeed)
-		{
-			scrollSpeed = defaultScrollSpeed + (((maxScrollSpeedDist - (maxScrollSpeedDist - distance)) / maxScrollSpeedDist) * (maxScrollSpeed - defaultScrollSpeed));
-		}
-
-		scrollCloudSpeed = scrollSpeed * 12.5f;
-		scrollBackgroundSpeed = scrollCloudSpeed * 3;
-		scrollForegroundSpeed = scrollCloudSpeed * 8;
-
 		for (int i = 0; i < activeElements.Count; i++)
 		{
 			SwitchElement(i);
 		}
+	}
 
-		if (scrollGalata)
+	private void IsScrollGalata()
+	{
+		if (IsscrollGalata)
 		{
 			if (galata.transform.position.x < GameTransformManager.Instance.GalataEndXPosition)
 			{
-				scrollGalata = false;
+				IsscrollGalata = false;
 			}
 			galata.transform.position -= Vector3.right * scrollForegroundSpeed * Time.deltaTime;
 		}
-
-		scrolling.x = scrollSpeed;
-
-		ground.material.mainTextureOffset += scrolling * Time.deltaTime;
 	}
 
-	void SwitchElement(int i)
+    void SwitchElement(int i)
     {
+
 		switch (activeElements[i].tag)
 		{
 			case "CloudLayer":
@@ -232,59 +304,10 @@ public class LevelSpawnManager : MonoBehaviour
 		}
 	}
 
-	IEnumerator SpawnPowerUp()
-	{
-		canSpawnPowerUp = false;
-
-		int frequency = Random.Range(10, 30);
-
-		if (!paused)
-		{
-			yield return new WaitForSeconds(frequency);
-		}
-
-		powerUpManager.SpawnPowerUp(scrollSpeed / defaultScrollSpeed);
-		canSpawnPowerUp = true;
-	}
-
-	IEnumerator SpawnBirdTraffic()
-	{
-		canSpawnBirdTraffic = false;
-
-		int frequency = Random.Range(15, 35);
-
-		if (!paused)
-		{
-			yield return new WaitForSeconds(frequency);
-		}
-
-		if (distance < 1000)
-		{
-			frequency = Random.Range(10, 30);
-		}
-		else
-		{
-			frequency = Random.Range(10, 40);
-		}
-
-		frequency = frequency / 10;
-
-		for (int i = 0; i < frequency; i++)
-		{
-			birdTrafficManager.LaunchBird();
-
-			if (!paused)
-			{
-				yield return new WaitForSeconds(1.0f);
-			}
-
-		}
-		canSpawnBirdTraffic = true;
-	}
 
 	IEnumerator StopScrolling(float time)
 	{
-		canModifySpeed = false;
+		IsCanModifySpeed = false;
 
 		float startValue = scrollSpeed;
 		scrollAtCrash = scrollSpeed;
@@ -300,8 +323,8 @@ public class LevelSpawnManager : MonoBehaviour
 			yield return new WaitForEndOfFrame();
 		}
 
-		canSpawn = false;
-		paused = true;
+		Iscanspawn = false;
+		Ispaused = true;
 
 		MissionManager.Instance.FailEvent((int)distance);
 
@@ -439,9 +462,9 @@ public class LevelSpawnManager : MonoBehaviour
 		GameMenuManager.Instance.mainMenuElements[10].SetActive(true);
 		galata.transform.localPosition = new Vector3(galataPos, 1, galata.transform.localPosition.z);
 
-		canSpawnBirdTraffic = true;
-		canSpawnPowerUp = true;
-		canModifySpeed = true;
+		IsCanSpawnBirdTraffic = true;
+		IscanSpawnPowerUp = true;
+		IsCanModifySpeed = true;
 
 		distance = 0;
 		scrollSpeed = defaultScrollSpeed;
@@ -449,7 +472,7 @@ public class LevelSpawnManager : MonoBehaviour
 		SpawnCloudLayer(1);
 		SpawnCityBackgroundLayer(1);
 
-		scrollGalata = true;
+		IsscrollGalata = true;
 
 		if (startToScroll)
 		{
@@ -459,8 +482,8 @@ public class LevelSpawnManager : MonoBehaviour
 
 	public void Pause()
 	{
-		canSpawn = false;
-		paused = true;
+		Iscanspawn = false;
+		Ispaused = true;
 
 		birdTrafficManager.PauseAll();
 		powerUpManager.PauseAll();
@@ -468,8 +491,8 @@ public class LevelSpawnManager : MonoBehaviour
 
 	public void Resume()
 	{
-		canSpawn = true;
-		paused = false;
+		Iscanspawn = true;
+		Ispaused = false;
 
 		birdTrafficManager.ResumeAll();
 		powerUpManager.ResumeAll();
@@ -477,21 +500,21 @@ public class LevelSpawnManager : MonoBehaviour
 
 	public void ExtraSpeedEffect()
 	{
-		canModifySpeed = false;
+		IsCanModifySpeed = false;
 	}
 
 	public void ExtraSpeedOver()
 	{
-		canModifySpeed = true;
+		IsCanModifySpeed = true;
 	}
 
 	public void ContinueScrolling()
 	{
 		scrollSpeed = scrollAtCrash;
 
-		paused = false;
-		canSpawn = true;
-		canModifySpeed = true;
+		Ispaused = false;
+		Iscanspawn = true;
+		IsCanModifySpeed = true;
 	}
 
 	public float SpeedMultiplier()
@@ -509,7 +532,7 @@ public class LevelSpawnManager : MonoBehaviour
 		GameObject particleGO = particle.gameObject;
 		activeElements.Add(particleGO);
 
-		if (!paused)
+		if (!Ispaused)
 		{
 			yield return new WaitForSeconds(2f);
 		}
@@ -521,10 +544,10 @@ public class LevelSpawnManager : MonoBehaviour
 	{
 		RandomizeObstacles();
 
-		canSpawn = true;
-		paused = false;
+		Iscanspawn = true;
+		Ispaused = false;
 
-		if (!paused)
+		if (!Ispaused)
 		{
 			yield return new WaitForSeconds(waitTime);
 		}

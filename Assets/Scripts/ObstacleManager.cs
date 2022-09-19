@@ -28,9 +28,7 @@ public class ObstacleManager : MonoBehaviour
 		foreach (GameObject child in elements)
 		{
 			Transform go = child.transform.Find("HideParticleEffect");
-
 			GetParticleSystem(go);
-
 			child.SetActive(false);
 		}
 	}
@@ -46,7 +44,6 @@ public class ObstacleManager : MonoBehaviour
 		foreach (GameObject child in elements)
 		{
 			child.SetActive(true);
-
 			child.GetComponent<Renderer>().enabled = true;
 			child.GetComponent<Collider>().enabled = true;
 		}
