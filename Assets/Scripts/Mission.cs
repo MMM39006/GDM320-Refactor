@@ -42,7 +42,7 @@ public class Mission
 
 	int storedValue = 0, startingValue = 0;
 
-	bool completed = false;
+	bool IsComplete = false;
 
 	public void SetStoredValue(int v)
 	{
@@ -70,11 +70,11 @@ public class Mission
 
 	public bool Completed()
 	{
-		return completed;
+		return IsComplete;
 	}
 
 	public void Complete()
 	{
-		completed = true;
+		IsComplete = true;
 	}
 }

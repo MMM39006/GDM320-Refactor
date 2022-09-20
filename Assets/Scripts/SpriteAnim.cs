@@ -8,22 +8,22 @@ public class SpriteAnim : MonoBehaviour
 
 	int currentId = 0;
 
-	bool canAnimate = false;
+	bool vibeCheck = false;
 
 	void OnEnable()
 	{
-		canAnimate = true;
+		vibeCheck = true;
 	}
 
 	void OnDisable()
 	{
 		StopCoroutine("Animate");
-		canAnimate = false;
+		vibeCheck = false;
 	}
 
 	void Update()
 	{
-		if (canAnimate)
+		if (vibeCheck)
 		{
 			StartCoroutine(Animate());
 		}
@@ -31,7 +31,7 @@ public class SpriteAnim : MonoBehaviour
 
 	IEnumerator Animate()
 	{
-		canAnimate = false;
+		vibeCheck = false;
 
 		yield return new WaitForSeconds(0.1f);
 
@@ -48,6 +48,6 @@ public class SpriteAnim : MonoBehaviour
 				break;
 		}
 
-		canAnimate = true;
+		vibeCheck = true;
 	}
 }

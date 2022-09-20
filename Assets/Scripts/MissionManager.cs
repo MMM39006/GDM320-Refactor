@@ -43,9 +43,14 @@ public class MissionManager : MonoBehaviour
 		else if (data.Length < missions.Length)
 			UpdateDataString();
 
-		activeMissionIDs[0] = PreferencesManager.Instance.GetMission1();
-		activeMissionIDs[1] = PreferencesManager.Instance.GetMission2();
-		activeMissionIDs[2] = PreferencesManager.Instance.GetMission3();
+		//activeMissionIDs[0] = PreferencesManager.Instance.GetMission1();
+		//activeMissionIDs[1] = PreferencesManager.Instance.GetMission2();
+		//activeMissionIDs[2] = PreferencesManager.Instance.GetMission3();
+
+		for (int i = 0; i < 3; i++)
+		{
+			activeMissionIDs[i] = PreferencesManager.Instance.GetMission1();
+		}
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -61,14 +66,20 @@ public class MissionManager : MonoBehaviour
 				activeMissionComplete[i] = true;
 		}
 
-		if (!activeMissionComplete[0] && missions[activeMissionIDs[0]].goalType != Mission.GoalType.InOneRun)
-			missions[activeMissionIDs[0]].SetStoredValue(PreferencesManager.Instance.GetMission1Data());
+		//if (!activeMissionComplete[0] && missions[activeMissionIDs[0]].goalType != Mission.GoalType.InOneRun)
+			//missions[activeMissionIDs[0]].SetStoredValue(PreferencesManager.Instance.GetMission1Data());
 
-		if (!activeMissionComplete[1] && missions[activeMissionIDs[1]].goalType != Mission.GoalType.InOneRun)
-			missions[activeMissionIDs[1]].SetStoredValue(PreferencesManager.Instance.GetMission2Data());
+		//if (!activeMissionComplete[1] && missions[activeMissionIDs[1]].goalType != Mission.GoalType.InOneRun)
+			//missions[activeMissionIDs[1]].SetStoredValue(PreferencesManager.Instance.GetMission2Data());
 
-		if (!activeMissionComplete[2] && missions[activeMissionIDs[2]].goalType != Mission.GoalType.InOneRun)
+		//if (!activeMissionComplete[2] && missions[activeMissionIDs[2]].goalType != Mission.GoalType.InOneRun)
+			//missions[activeMissionIDs[2]].SetStoredValue(PreferencesManager.Instance.GetMission3Data());
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (!activeMissionComplete[2] && missions[activeMissionIDs[0]].goalType != Mission.GoalType.InOneRun)
 			missions[activeMissionIDs[2]].SetStoredValue(PreferencesManager.Instance.GetMission3Data());
+		}
 
 		UpdateGUITexts();
 	}
@@ -510,12 +521,24 @@ public class MissionManager : MonoBehaviour
 
 	void ResetMissions()
 	{
-		PreferencesManager.Instance.SetMission1(0);
-		PreferencesManager.Instance.SetMission2(1);
-		PreferencesManager.Instance.SetMission3(2);
+		//PreferencesManager.Instance.SetMission1(0);
+		//PreferencesManager.Instance.SetMission2(1);
+		//PreferencesManager.Instance.SetMission3(2);
+		
+		for (int i = 0; i < 3; i++)
+		{
+			PreferencesManager.Instance.SetMission1(i);
+		}
 
-		PreferencesManager.Instance.SetMission1Data(0);
-		PreferencesManager.Instance.SetMission2Data(0);
-		PreferencesManager.Instance.SetMission3Data(0);
+
+		//PreferencesManager.Instance.SetMission1Data(0);
+		//PreferencesManager.Instance.SetMission2Data(0);
+		//PreferencesManager.Instance.SetMission3Data(0);
+		
+		for (int i = 0; i < 3; i++)
+		{
+			PreferencesManager.Instance.SetMission1(i);
+		}
+
 	}
 }
