@@ -20,11 +20,7 @@ public class AdvertisementManager : MonoBehaviour
     }
     void Start()
 	{
-		instances++;
-		if (instances > 1)
-			Debug.LogWarning("There are more than one AdvertisementManager");
-		else
-			_instance = this;
+		CheckAdvertisementManagerDuplication();
 	}
 	public void StartAds()
     {
@@ -111,4 +107,13 @@ public class AdvertisementManager : MonoBehaviour
 		Debug.Log("HandleRewardBasedVideoClosed event received");
 		StartCoroutine(GameMenuManager.Instance.UpdateShopRoutine());
 	}
+
+    public void CheckAdvertisementManagerDuplication()
+    {
+        instances++;
+        if (instances > 1)
+            Debug.LogWarning("There are more than one AdvertisementManager");
+        else
+            _instance = this;
+    }
 }

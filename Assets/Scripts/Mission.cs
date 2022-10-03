@@ -68,7 +68,7 @@ public class Mission
 		storedValue = 0;
 	}
 
-	public bool Completed()
+	public bool IsCompleted()
 	{
 		return IsComplete;
 	}

@@ -25,11 +25,11 @@ public class SpriteAnim : MonoBehaviour
 	{
 		if (vibeCheck)
 		{
-			StartCoroutine(Animate());
+			StartCoroutine(AnimateBird());
 		}
 	}
 
-	IEnumerator Animate()
+	IEnumerator AnimateBird()
 	{
 		vibeCheck = false;
 

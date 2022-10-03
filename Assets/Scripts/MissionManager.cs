@@ -26,13 +26,9 @@ public class MissionManager : MonoBehaviour
 
 	void Start()
 	{
-		instances++;
+		CheckMissionManagerDuplication();
 
-		if (instances > 1)
-			Debug.LogWarning("Warning: There are more than one Mission Manager at the level");
-		else
-			_instance = this;
-	}
+    }
 
 	public void LoadStatus()
 	{
@@ -541,4 +537,13 @@ public class MissionManager : MonoBehaviour
 		}
 
 	}
+
+    public void CheckMissionManagerDuplication()
+    {
+        instances++;
+        if (instances > 1)
+            Debug.LogWarning("There are more than one MissionManager");
+        else
+            _instance = this;
+    }
 }
