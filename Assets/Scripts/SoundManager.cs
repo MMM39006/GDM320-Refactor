@@ -26,16 +26,17 @@ public class SoundManager : MonoBehaviour
         WarningFromSoundManager();
 
         float storedVolumeValue = PreferencesManager.Instance.GetMusicVolume();
-        AudioLength(storedVolumeValue);
+        VolumeAudioLength(storedVolumeValue);
         IsVolumeValueOff(storedVolumeValue);
     }
 
-    private void AudioLength(float storedVolumeValue)
+    private void VolumeAudioLength(float storedVolumeValue)
     {
         for (int i = 0; i < audioButtons.Length; i++)
         {
             IsVolumeValue(storedVolumeValue, i);
         }
+
     }
 
     void WarningFromSoundManager()
@@ -64,15 +65,16 @@ public class SoundManager : MonoBehaviour
 	void IsVolumeValueOff(float storedVolumeValue)
     {
 		if (storedVolumeValue <= 0)
-		{
+        {
 			this.StopMusic();
 		}
+
 	}
 
 	public void SetMusicVolume(float value)
 	{
 		if (gameObject.GetComponent<AudioSource>() != null)
-		{
+        {
 			gameObject.GetComponent<AudioSource>().volume = value;
 			PreferencesManager.Instance.SetMusicVolume(value);
 		}
@@ -81,9 +83,10 @@ public class SoundManager : MonoBehaviour
 	public void PauseMusic()
 	{
 		if (gameObject.GetComponent<AudioSource>() != null)
-		{
+        {
 			gameObject.GetComponent<AudioSource>().Pause();
 		}
+
 	}
 
 	public void StopMusic()
@@ -93,26 +96,30 @@ public class SoundManager : MonoBehaviour
 
     private void StopAudio()
     {
-        if (gameObject.GetComponent<AudioSource>() != null)
+		if (gameObject.GetComponent<AudioSource>() != null)
         {
-            gameObject.GetComponent<AudioSource>().Stop();
-        }
-    }
+			gameObject.GetComponent<AudioSource>().Stop();
 
-    public void StartMusic()
+		}
+
+	}
+
+	public void StartMusic()
     {
         StartAudio();
     }
 
     private void StartAudio()
     {
-        if (PreferencesManager.Instance.GetMusicVolume() > 0)
+		if (PreferencesManager.Instance.GetMusicVolume() > 0)
         {
-            IsAudioNull();
-        }
-    }
+			IsAudioNull();
+		}
 
-    private void IsAudioNull()
+
+	}
+
+	private void IsAudioNull()
     {
         if (gameObject.GetComponent<AudioSource>() != null)
         {

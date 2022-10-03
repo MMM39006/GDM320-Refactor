@@ -16,11 +16,16 @@ public class ObstacleManager : MonoBehaviour
 
 	void ElementsAdd(Transform child)
     {
-		if (child.name != "SpawnTriggerer" && child.name != "ResetTriggerer")
+		if (IsShouldNotElementsAdd(child))
 		{
 			elements.Add(child.gameObject);
 			child.gameObject.SetActive(false);
 		}
+	}
+
+	bool IsShouldNotElementsAdd(Transform child)
+    {
+		 return child.name != "SpawnTriggerer" && child.name != "ResetTriggerer";
 	}
 
 	public void DeactivateChild()

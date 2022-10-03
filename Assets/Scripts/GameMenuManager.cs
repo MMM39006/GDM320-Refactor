@@ -103,8 +103,10 @@ public class GameMenuManager : MonoBehaviour
     {
 		if (IsshowMainGUI && !IsshowPause)
 		{
-			DisplayStatistics(guiTexts[0], LevelManager.Instance.Coins(), 4);
-			DisplayStatistics(guiTexts[1], (int)LevelSpawnManager.Instance.distance, 5);
+			var SpawnDataInstanceCoins = new SpawnData (guiTexts[0], LevelManager.Instance.Coins(), 4);
+			var SpawnDataInstanceDistance = new SpawnData(guiTexts[1], (int)LevelSpawnManager.Instance.distance, 5);
+			DisplayStatistics(SpawnDataInstanceCoins);
+			DisplayStatistics(SpawnDataInstanceDistance);
 		}
 
 		if (Input.GetKeyDown(KeyCode.Escape))
@@ -113,15 +115,15 @@ public class GameMenuManager : MonoBehaviour
 		}
 	}
 
-	void DisplayStatistics(TextMesh target, int data, int digitNumbers)
+	void DisplayStatistics(SpawnData Data)
 	{
 		string dataString = "";
-		int remainingDigitCount = digitNumbers - data.ToString().Length;
+		int remainingDigitCount = Data.digitNumbers - Data.data.ToString().Length;
 
 		RemainDgigigCount(remainingDigitCount, dataString);
 
-		dataString += data;
-		target.text = dataString;
+		dataString += Data.data;
+		Data.target.text = dataString;
 	}
 
 	void RemainDgigigCount(int remainingDigitCount,string dataString)
@@ -151,7 +153,7 @@ public class GameMenuManager : MonoBehaviour
 		SoundManager.Instance.PauseMusic();
 	}
 
-	void ToggleMainMenuArrow(Material arrow)
+	void ToggleMainMenuArrowButtonDown(Material arrow)
 	{
 		if (IsmainMenuTopHidden)
 		{
@@ -266,12 +268,12 @@ public class GameMenuManager : MonoBehaviour
 		UpdateShop();
 	}
 
-	public void RewardCoin(double amount)
+	public void GetRewardCoin(double amount)
 	{
 		PreferencesManager.Instance.AddCoins(System.Convert.ToInt32(amount));
 	}
 
-	void BuySpeedPowerup()
+	void IsBuySpeedPowerup()
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[0])
 		{
@@ -284,7 +286,7 @@ public class GameMenuManager : MonoBehaviour
 		}
 	}
 
-	void BuyShieldPowerup()
+	void IsBuyShieldPowerup()
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[1])
 		{
@@ -297,7 +299,7 @@ public class GameMenuManager : MonoBehaviour
 		}
 	}
 
-	void BuyAbracadabraPowerup()
+	void IsBuyAbracadabraPowerup()
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[2])
 		{
@@ -310,7 +312,7 @@ public class GameMenuManager : MonoBehaviour
 		}
 	}
 
-	void BuyRevivePowerup()
+	void IsBuyRevivePowerup()
 	{
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[3])
 		{
@@ -365,6 +367,7 @@ public class GameMenuManager : MonoBehaviour
 		StopCoroutine("MovePowerUpSelection");
 	}
 
+
 	//Activate the revive powerup at crash
 	void ActivateRevivePowerup()
 	{
@@ -375,7 +378,7 @@ public class GameMenuManager : MonoBehaviour
 	{
 		mainMenuElements[10].SetActive(false);
 
-		if (!IsmainMissionHidden || !IsshopHidden || Isstarting || !IsaboutHidden || !IsareYouSureHidden)
+		if (IsShouldNotStartToPlay())
 			return;
 
 		Isstarting = true;
@@ -394,6 +397,11 @@ public class GameMenuManager : MonoBehaviour
 
 		PlayerManager.Instance.startAnimation.GetComponent<Animator>().enabled = true;
 		SoundManager.Instance.StartMusic();
+	}
+
+	bool IsShouldNotStartToPlay()
+    {
+		return !IsmainMissionHidden || !IsshopHidden || Isstarting || !IsaboutHidden || !IsareYouSureHidden;
 	}
 
 	IEnumerator SpawnObstacles()
@@ -458,31 +466,37 @@ public class GameMenuManager : MonoBehaviour
 	}
 
 	IEnumerator QuitToMain()
-	{
-		Isstarting = false;
-		StartCoroutine(FadeScreen(0.4f, 1.0f));
+    {
+        Isstarting = false;
+        StartCoroutine(FadeScreen(0.4f, 1.0f));
 
-		IsShowPause();
+        IsShowPause();
 
-		mainGUIElements[1].SetActive(false);
-		mainGUIElements[2].SetActive(false);
+        mainGUIElements[1].SetActive(false);
+        mainGUIElements[2].SetActive(false);
 
-		yield return new WaitForSeconds(0.5f);
-		StartCoroutine(FadeScreen(0.4f, 0.0f));
+        yield return new WaitForSeconds(0.5f);
+        StartCoroutine(FadeScreen(0.4f, 0.0f));
 
-		mainMenuElements[0].SetActive(true);
-		LevelManager.Instance.QuitToMain();
+        mainMenuElements[0].SetActive(true);
+        LevelManager.Instance.QuitToMain();
 
-		PlayerManager.Instance.horizontalAnimation.GetComponent<Animator>().enabled = false;
-		PlayerManager.Instance.horizontalAnimation.GetComponent<SpriteRenderer>().enabled = false;
-		PlayerManager.Instance.startAnimation.GetComponent<Animator>().enabled = false;
-		PlayerManager.Instance.startAnimation.GetComponent<SpriteRenderer>().enabled = true;
-		PlayerManager.Instance.startAnimation.GetComponent<SpriteRenderer>().sprite = PlayerManager.Instance.startAnimation.GetComponent<ChangeAvatar>().startSprite;
+        DisableComponentToMain();
+    }
 
-		SoundManager.Instance.StopMusic();
-	}
-	//---------------------------------------------------------------------------
-	public IEnumerator MoveMenu(Transform menuTransform, float endPosX, float endPosY, float time, bool hide)
+    private static void DisableComponentToMain()
+    {
+        PlayerManager.Instance.horizontalAnimation.GetComponent<Animator>().enabled = false;
+        PlayerManager.Instance.horizontalAnimation.GetComponent<SpriteRenderer>().enabled = false;
+        PlayerManager.Instance.startAnimation.GetComponent<Animator>().enabled = false;
+        PlayerManager.Instance.startAnimation.GetComponent<SpriteRenderer>().enabled = true;
+        PlayerManager.Instance.startAnimation.GetComponent<SpriteRenderer>().sprite = PlayerManager.Instance.startAnimation.GetComponent<ChangeAvatar>().startSprite;
+
+        SoundManager.Instance.StopMusic();
+    }
+
+    //---------------------------------------------------------------------------
+    public IEnumerator MoveMenu(Transform menuTransform, float endPosX, float endPosY, float time, bool hide)
 	{
 		IscanClick = false;
 
@@ -508,15 +522,15 @@ public class GameMenuManager : MonoBehaviour
 	IEnumerator MovePowerUpSelection(bool speed, bool shield, bool abracadabra)
     {
         yield return new WaitForSeconds(3.0f);
-
-        MenuPosition(speed, shield, abracadabra,-28.5f,false);
+		var Menuposition = new MenuPositionData(speed, shield, abracadabra, -28.5f, false);
+        MenuPosition(Menuposition);
 
         if (!IsshowPause)
         {
             yield return new WaitForSeconds(10.0f);
         }
-
-		MenuPosition(speed, shield, abracadabra, -45f, false);
+		Menuposition = new MenuPositionData(speed, shield, abracadabra, -45f, false);
+		MenuPosition(Menuposition);
 
 
 		yield return new WaitForSeconds(0.4f);
@@ -524,14 +538,14 @@ public class GameMenuManager : MonoBehaviour
         StopCoroutine("MovePowerUpSelection");
     }
 
-    private void MenuPosition(bool speed, bool shield, bool abracadabra,float positionMove,bool Ishide)
+    private void MenuPosition(MenuPositionData Data)
     {
-        if (speed)
-            StartCoroutine(MoveMenu(startPowerUps[0].transform, startPowerUps[0].transform.localPosition.x, positionMove, 0.4f, false));
-        if (shield)
-            StartCoroutine(MoveMenu(startPowerUps[1].transform, startPowerUps[1].transform.localPosition.x, positionMove, 0.4f, false));
-        if (abracadabra)
-            StartCoroutine(MoveMenu(startPowerUps[2].transform, startPowerUps[2].transform.localPosition.x, positionMove, 0.4f, false));
+        if (Data.speed)
+            StartCoroutine(MoveMenu(startPowerUps[0].transform, startPowerUps[0].transform.localPosition.x, Data.positionMove, 0.4f, false));
+        if (Data.shield)
+            StartCoroutine(MoveMenu(startPowerUps[1].transform, startPowerUps[1].transform.localPosition.x, Data.positionMove, 0.4f, false));
+        if (Data.abracadabra)
+            StartCoroutine(MoveMenu(startPowerUps[2].transform, startPowerUps[2].transform.localPosition.x, Data.positionMove, 0.4f, false));
     }
 
     public void SetLevelResolution()
@@ -584,7 +598,7 @@ public class GameMenuManager : MonoBehaviour
 				break;
 
 			case "MainArrow":
-				ToggleMainMenuArrow(button.GetComponent<Renderer>().material);
+				ToggleMainMenuArrowButtonDown(button.GetComponent<Renderer>().material);
 				break;
 
 			case "AudioEnabler":
@@ -610,15 +624,15 @@ public class GameMenuManager : MonoBehaviour
 				break;
 
 			case "BuySpeed":
-				BuySpeedPowerup();
+				IsBuySpeedPowerup();
 				break;
 
 			case "BuyShield":
-				BuyShieldPowerup();
+				IsBuyShieldPowerup();
 				break;
 
 			case "BuyRevive":
-				BuyRevivePowerup();
+				IsBuyRevivePowerup();
 				break;
 
 			case "BuyAdvertisement":
@@ -626,7 +640,7 @@ public class GameMenuManager : MonoBehaviour
 				break;
 
 			case "BuyAbracadabra":
-				BuyAbracadabraPowerup();
+				IsBuyAbracadabraPowerup();
 				break;
 
 			case "ExtraSpeedActivation":
@@ -648,33 +662,38 @@ public class GameMenuManager : MonoBehaviour
 	}
 
 	public void ShowEnd()
-	{
-		SoundManager.Instance.StopMusic();
+    {
+        SoundManager.Instance.StopMusic();
 
-		MissionManager.Instance.Save();
-		finishMenu.SetActive(true);
-		finishMenuTop.SetActive(true);
+        MissionManager.Instance.Save();
+        finishMenu.SetActive(true);
+        finishMenuTop.SetActive(true);
 
-		int currentDist = (int)LevelSpawnManager.Instance.distance;
-		int currentCoins = LevelManager.Instance.Coins();
+        int currentDist = (int)LevelSpawnManager.Instance.distance;
+        int currentCoins = LevelManager.Instance.Coins();
 
-		finishTexts[0].text = currentDist + "M";
-		finishTexts[1].text = currentCoins.ToString();
+        finishTexts[0].text = currentDist + "M";
+        finishTexts[1].text = currentCoins.ToString();
 
-		if (currentDist > PreferencesManager.Instance.GetBestDistance())
-			PreferencesManager.Instance.SetBestDistance(currentDist);
+        if (currentDist > PreferencesManager.Instance.GetBestDistance())
+            PreferencesManager.Instance.SetBestDistance(currentDist);
 
-		PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() + currentCoins);
-		FirebaseEventManager.Instance.SendEarnVirtualCurrency();
+        PreferencesManager.Instance.SetCoins(PreferencesManager.Instance.GetCoins() + currentCoins);
+        FirebaseEventManager.Instance.SendEarnVirtualCurrency();
 
-		StartCoroutine(FadeScreen(0.4f, 0.7f));
-		StartCoroutine(MoveMenu(finishMenu.transform, 0, 67, 0.55f, false));
-		StartCoroutine(MoveMenu(finishMenuTop.transform, 0, -37, 0.55f, false));
+        MoveScreenEndUiGame();
 
-		restartCount++;
-	}
+        restartCount++;
+    }
 
-	public void ShowStartPowerUps()
+    private void MoveScreenEndUiGame()
+    {
+        StartCoroutine(FadeScreen(0.4f, 0.7f));
+        StartCoroutine(MoveMenu(finishMenu.transform, 0, 67, 0.55f, false));
+        StartCoroutine(MoveMenu(finishMenuTop.transform, 0, -37, 0.55f, false));
+    }
+
+    public void ShowStartPowerUps()
     {
         bool hasSpeed = PreferencesManager.Instance.GetExtraSpeed() > 0;
         bool hasShield = PreferencesManager.Instance.GetShield() > 0;
@@ -689,22 +708,24 @@ public class GameMenuManager : MonoBehaviour
         if (hasAbracadabra)
             numberOfPowerUps++;
 
-        NumberPowerUp(hasSpeed, hasShield, hasAbracadabra, numberOfPowerUps);
+		var NumberPowerUpData = new GameMenuNumberPowerUpData(hasSpeed, hasShield, hasAbracadabra, numberOfPowerUps);
+
+		NumberPowerUp(NumberPowerUpData);
 
         StartCoroutine(MovePowerUpSelection(hasSpeed, hasShield, hasAbracadabra));
     }
 
-    private void NumberPowerUp(bool hasSpeed, bool hasShield, bool hasAbracadabra, int numberOfPowerUps)
+    private void NumberPowerUp(GameMenuNumberPowerUpData Data)
     {
-        if (numberOfPowerUps == 1)
+        if (Data.numberOfPowerUps == 1)
         {
-            if (hasSpeed)
+            if (Data.hasSpeed)
             {
                 startPowerUps[0].transform.localPosition = new Vector3(0, -40, 0);
                 startPowerUps[0].SetActive(true);
 				return;
             }
-            if (hasShield)
+            if (Data.hasShield)
             {
                 startPowerUps[1].transform.localPosition = new Vector3(0, -40, 0);
                 startPowerUps[1].SetActive(true);
@@ -714,30 +735,30 @@ public class GameMenuManager : MonoBehaviour
 			startPowerUps[2].SetActive(true);
 			return;
         }
-        if (numberOfPowerUps == 2)
+        if (Data.numberOfPowerUps == 2)
         {
-            if (hasSpeed)
+            if (Data.hasSpeed)
             {
                 startPowerUps[0].transform.localPosition = new Vector3(-7.5f, -40, 0);
                 startPowerUps[0].SetActive(true);
             }
-            if (hasShield)
+            if (Data.hasShield)
             {
-                if (hasSpeed)
+                if (Data.hasSpeed)
                     startPowerUps[1].transform.localPosition = new Vector3(7.5f, -40, 0);
                 else
                     startPowerUps[1].transform.localPosition = new Vector3(-7.5f, -40, 0);
 
                 startPowerUps[1].SetActive(true);
             }
-            if (hasAbracadabra)
+            if (Data.hasAbracadabra)
             {
                 startPowerUps[2].transform.localPosition = new Vector3(7.5f, -40, 0);
                 startPowerUps[2].SetActive(true);
             }
 			return;
         }
-        if (numberOfPowerUps == 3)
+        if (Data.numberOfPowerUps == 3)
         {
             startPowerUps[0].transform.localPosition = new Vector3(-15, -40, 0);
             startPowerUps[0].SetActive(true);
@@ -875,6 +896,7 @@ public class GameMenuManager : MonoBehaviour
 	public IEnumerator ShowRevive()
 	{
 		StartCoroutine(MoveMenu(startPowerUps[3].transform, startPowerUps[3].transform.localPosition.x, -29.5f, 0.4f, false));
+
 
 		bool activated = false;
 

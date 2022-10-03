@@ -102,6 +102,7 @@ public class LevelSpawnManager : MonoBehaviour
 			distance += scrollSpeed * Time.deltaTime * 25;
 			MissionManager.Instance.DistanceEvent((int)distance);
 		}
+
 	}
 
 	void IscanSpawn()
@@ -116,11 +117,11 @@ public class LevelSpawnManager : MonoBehaviour
 
     private void IscanSpawnBirdTraffic()
     {
-        if (IsCanSpawnBirdTraffic)
-        {
-            StartCoroutine(SpawnBirdTraffic());
-        }
-    }
+		if (!IsCanSpawnBirdTraffic)
+			return;
+		StartCoroutine(SpawnBirdTraffic());
+
+	}
 
 	IEnumerator SpawnBirdTraffic()
 	{
@@ -171,10 +172,10 @@ public class LevelSpawnManager : MonoBehaviour
 
 		int frequency = Random.Range(10, 30);
 
-		if (!Ispaused)
-		{
-			yield return new WaitForSeconds(frequency);
-		}
+		if (Ispaused)
+			yield break;
+		yield return new WaitForSeconds(frequency);
+
 
 		powerUpManager.SpawnPowerUp(scrollSpeed / defaultScrollSpeed);
 		IscanSpawnPowerUp = true;
@@ -197,11 +198,11 @@ public class LevelSpawnManager : MonoBehaviour
 
     private void IscanModifySpeed()
     {
-        if (IsCanModifySpeed)
-        {
-            scrollSpeed = defaultScrollSpeed + (((maxScrollSpeedDist - (maxScrollSpeedDist - distance)) / maxScrollSpeedDist) * (maxScrollSpeed - defaultScrollSpeed));
-        }
-    }
+		if (!IsCanModifySpeed)
+			return;
+		scrollSpeed = defaultScrollSpeed + (((maxScrollSpeedDist - (maxScrollSpeedDist - distance)) / maxScrollSpeedDist) * (maxScrollSpeed - defaultScrollSpeed));
+
+	}
 
 	private void LoopElenents()
 	{
@@ -215,7 +216,7 @@ public class LevelSpawnManager : MonoBehaviour
 	{
 		if (IsscrollGalata)
 		{
-			if (galata.transform.position.x < GameTransformManager.Instance.GalataEndXPosition)
+			if (IsStopGelata())
 			{
 				IsscrollGalata = false;
 			}
@@ -223,28 +224,37 @@ public class LevelSpawnManager : MonoBehaviour
 		}
 	}
 
-    void SwitchElement(int i)
+	bool IsStopGelata()
     {
-
-		switch (activeElements[i].tag)
-		{
-			case "CloudLayer":
-				activeElements[i].transform.position -= Vector3.right * scrollCloudSpeed * Time.deltaTime;
-				break;
-
-			case "CityBackgroundLayer":
-				activeElements[i].transform.position -= Vector3.right * scrollBackgroundSpeed * Time.deltaTime;
-				break;
-
-			case "CityForegroundLayer":
-			case "Obstacles":
-			case "Particle":
-				activeElements[i].transform.position -= Vector3.right * scrollForegroundSpeed * Time.deltaTime;
-				break;
-		}
+		return galata.transform.position.x < GameTransformManager.Instance.GalataEndXPosition;
 	}
 
-	void ClearMap()
+    void SwitchElement(int i)
+    {
+        SwitchElementByTag(i);
+    }
+
+    private void SwitchElementByTag(int i)
+    {
+        switch (activeElements[i].tag)
+        {
+            case "CloudLayer":
+                activeElements[i].transform.position -= Vector3.right * scrollCloudSpeed * Time.deltaTime;
+                break;
+
+            case "CityBackgroundLayer":
+                activeElements[i].transform.position -= Vector3.right * scrollBackgroundSpeed * Time.deltaTime;
+                break;
+
+            case "CityForegroundLayer":
+            case "Obstacles":
+            case "Particle":
+                activeElements[i].transform.position -= Vector3.right * scrollForegroundSpeed * Time.deltaTime;
+                break;
+        }
+    }
+
+    void ClearMap()
 	{
 		StopAllCoroutines();
 
@@ -341,24 +351,29 @@ public class LevelSpawnManager : MonoBehaviour
 	}
 
 	public void SpawnCloudLayer(int placeAtLoc)
-	{
-		int n = Random.Range(0, cloudLayer.Count);
-		GameObject randomizedCloudLayer = cloudLayer[n];
+    {
+        int n = Random.Range(0, cloudLayer.Count);
+        GameObject randomizedCloudLayer = cloudLayer[n];
 
-		cloudLayer.Remove(randomizedCloudLayer);
-		activeElements.Add(randomizedCloudLayer);
+        cloudLayer.Remove(randomizedCloudLayer);
+        activeElements.Add(randomizedCloudLayer);
 
-		//If place at middle
-		if (placeAtLoc == 1)
-		{
-			Vector3 newPos = randomizedCloudLayer.transform.localPosition;
-			newPos.x = 0;
-			randomizedCloudLayer.transform.localPosition = newPos;
-		}
-		randomizedCloudLayer.SetActive(true);
-	}
+        //If place at middle
+        IsPlaceAtMiddle(placeAtLoc, randomizedCloudLayer);
+        randomizedCloudLayer.SetActive(true);
+    }
 
-	public void SpawnCityBackgroundLayer(int placeAtLoc)
+    private static void IsPlaceAtMiddle(int placeAtLoc, GameObject randomizedCloudLayer)
+    {
+        if (placeAtLoc == 1)
+        {
+            Vector3 newPos = randomizedCloudLayer.transform.localPosition;
+            newPos.x = 0;
+            randomizedCloudLayer.transform.localPosition = newPos;
+        }
+    }
+
+    public void SpawnCityBackgroundLayer(int placeAtLoc)
 	{
 		int n = Random.Range(0, cityBackgroundLayer.Count);
 		GameObject randomizedCityBackgroundLayer = cityBackgroundLayer[n];
@@ -398,10 +413,10 @@ public class LevelSpawnManager : MonoBehaviour
 	{
 		int n = Random.Range(0, obstacles.Count);
 		GameObject randomizedObstacle = obstacles[n];
-
+		
 		obstacles.Remove(randomizedObstacle);
 		activeElements.Add(randomizedObstacle);
-
+		Debug.Log(randomizedObstacle);
 		randomizedObstacle.GetComponent<ObstacleManager>().ActivateChild();
 	}
 
@@ -474,10 +489,10 @@ public class LevelSpawnManager : MonoBehaviour
 
 		IsscrollGalata = true;
 
-		if (startToScroll)
-		{
-			StartCoroutine(StartToSpawn(1.25f, 3));
-		}
+		if (!startToScroll)
+			return;
+		StartCoroutine(StartToSpawn(1.25f, 3));
+
 	}
 
 	public void Pause()

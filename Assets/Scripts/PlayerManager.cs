@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -190,30 +191,47 @@ public class PlayerManager : MonoBehaviour
 
 	void IsObstacles(Collider other)
     {
-		if (other.transform.name == "Coin")
+		if (IsObStacleIsCoins(other))
 		{
 			IsCoins(other);
 			return;
 		}
-		if (other.transform.name == "BirdBrown" || other.transform.name == "BirdWhite" || other.transform.name == "StorkTall" || other.transform.name == "BirdBody")
+		if (IsObstacleIsBird(other))
 		{
 			Isbrid(other);
 			return;
 		}
-		if (other.name == "ObstacleSpawnTriggerer" && !IsfirstObstacleSpawned)
+		if (IsObstacleIsSpawnTrigger(other))
 		{
 			ObstacleSpawnTriggerer();
 			return;
 		}
 	}
 
+	bool IsObStacleIsCoins(Collider other)
+    {
+		return other.transform.name == "Coin";
+	}
+
+	bool IsObstacleIsBird(Collider other)
+    {
+		return other.transform.name == "BirdBrown" || other.transform.name == "BirdWhite" || other.transform.name == "StorkTall" || other.transform.name == "BirdBody";
+	}
+
+	bool IsObstacleIsSpawnTrigger(Collider other)
+    {
+		return other.name == "ObstacleSpawnTriggerer" && !IsfirstObstacleSpawned;
+	}
+
 	void IsCoins(Collider other)
     {
 		other.GetComponent<Renderer>().enabled = false;
 		other.GetComponent<Collider>().enabled = false;
-
+		
 		other.transform.Find("CoinParticle").gameObject.GetComponent<ParticleSystem>().Play();
+
 		LevelManager.Instance.CoinGathered();
+
 	}
 
 	void Isbrid(Collider other)
@@ -224,6 +242,7 @@ public class PlayerManager : MonoBehaviour
 			Iscrashing = true;
 			IscontrolEnabled = false;
 			Iscrashed = true;
+			transform.DORotate(new Vector3(0,0,180),1, RotateMode.FastBeyond360);
 			return;
 		}
 		if (IsshieldActive && !IsinExtraSpeed)
@@ -304,8 +323,9 @@ public class PlayerManager : MonoBehaviour
 		if (distance > 0.1f)
         {
             speed -= Time.deltaTime * maxVerticalSpeed * 0.6f;
+			var CrashEffectData = new PlayerCrashEffectData(crashPosY, crashPosEdge, distance);
 
-            CrashEffect(crashPosY, crashPosEdge, distance);
+			CrashEffect(CrashEffectData);
         }
         else
 		{
@@ -322,16 +342,16 @@ public class PlayerManager : MonoBehaviour
 			speed = newSpeed;
 	}
 
-	private void CrashEffect(float crashPosY, float crashPosEdge, float distance)
+	private void CrashEffect(PlayerCrashEffectData Data)
     {
-        if (distance < crashPosEdge)
+        if (Data.distance < Data.crashPosEdge)
         {
-            NewSpeed(crashPosY, crashPosEdge);
+            NewSpeed(Data.crashPosY, Data.crashPosEdge);
         }
 
         MoveAndRotate();
 
-        if (distance < 2.5f)
+        if (Data.distance < 2.5f)
         {
             ParticleSystem.EmissionModule smokeEmissionModule = smoke.emission;
             smokeEmissionModule.enabled = true;
@@ -360,8 +380,8 @@ public class PlayerManager : MonoBehaviour
 	{
 		abracadabra.SetActive(true);
 		IspowerUpUsed = true;
-
-		StartCoroutine(MoveToPosition(abracadabra.transform, new Vector3(GameTransformManager.Instance.AbracadabraPosition, 0, -5), 1.25f, false));
+		var MoveToPositionData = new PlayerMoveToPositionData(abracadabra.transform, new Vector3(GameTransformManager.Instance.AbracadabraPosition, 0, -5), 1.25f, false);
+		StartCoroutine(MoveToPosition(MoveToPositionData));
 
 		if (!Ispaused)
 		{
@@ -371,28 +391,28 @@ public class PlayerManager : MonoBehaviour
 		abracadabra.GetComponent<AbracadabraEffect>().Disable();
 	}
 
-	IEnumerator ScaleObject(Transform obj, Vector3 scale, float time, bool deactivate)
+	IEnumerator ScaleObject(PlayerScaleObjectData Data)
 	{
-		obj.gameObject.SetActive(true);
-		Vector3 startScale = obj.localScale;
+		Data.obj.gameObject.SetActive(true);
+		Vector3 startScale = Data.obj.localScale;
 
-		float rate = 1.0f / time;
+		float rate = 1.0f / Data.time;
 		float t = 0.0f;
 		while (t < 1.0f)
 		{
 			if (!Ispaused)
 			{
 				t += Time.deltaTime * rate;
-				obj.localScale = Vector3.Lerp(startScale, scale, t);
+				Data.obj.localScale = Vector3.Lerp(startScale, Data.scale, t);
 			}
 
 			yield return new WaitForEndOfFrame();
 		}
 
-		if (deactivate)
-			obj.gameObject.SetActive(false);
+		if (Data.deactivate)
+			Data.obj.gameObject.SetActive(false);
 
-		if (obj.name == "Shield")
+		if (Data.obj.name == "Shield")
 			shieldCollider.enabled = true;
 	}
 
@@ -410,25 +430,25 @@ public class PlayerManager : MonoBehaviour
 		characterAnimator.Play("player");
 	}
 
-	IEnumerator MoveToPosition(Transform obj, Vector3 endPos, float time, bool enableControls)
+	IEnumerator MoveToPosition(PlayerMoveToPositionData Data)
 	{
 		float i = 0.0f;
-		float rate = 1.0f / time;
+		float rate = 1.0f / Data.time;
 
-		Vector3 startPos = obj.position;
+		Vector3 startPos = Data.obj.position;
 
 		while (i < 1.0)
 		{
 			if (!Ispaused)
 			{
 				i += Time.deltaTime * rate;
-				obj.position = Vector3.Lerp(startPos, endPos, i);
+				Data.obj.position = Vector3.Lerp(startPos, Data.endPos, i);
 			}
 
 			yield return new WaitForEndOfFrame();
 		}
 
-		if (enableControls)
+		if (Data.enableControls)
 		{
 			IscontrolEnabled = true;
 		}
@@ -436,7 +456,7 @@ public class PlayerManager : MonoBehaviour
 
 	public void ExtraSpeed()
 	{
-		if (IsinExtraSpeed || Iscrashing || !IscontrolEnabled)
+		if (IsShouldNotExtraSpeed())
 			return;
 
 		IspowerUpUsed = true;
@@ -445,11 +465,16 @@ public class PlayerManager : MonoBehaviour
 
 		speedParticle.SetActive(true);
 		speedTrail.SetActive(true);
+		transform.DOScale(new Vector3(1.5f, 1.5f), 1);
 
 		LevelSpawnManager.Instance.ExtraSpeedEffect();
 		StartCoroutine(ExtraSpeedEffect(3));
 	}
 
+	bool IsShouldNotExtraSpeed()
+    {
+		return IsinExtraSpeed || Iscrashing || !IscontrolEnabled;
+	}
 	IEnumerator ExtraSpeedEffect(float time)
 	{
 		float newSpeed = LevelSpawnManager.Instance.scrollSpeed;
@@ -464,6 +489,8 @@ public class PlayerManager : MonoBehaviour
 		IsinExtraSpeed = false;
 		IsCrash = true;
 
+		transform.DOScale(new Vector3(1f, 1f), 1);
+
 		speedParticle.SetActive(false);
 		speedTrail.SetActive(false);
 
@@ -472,12 +499,17 @@ public class PlayerManager : MonoBehaviour
 
 	public void RaiseShield()
 	{
-		if (IsshieldActive || Iscrashing || !IscontrolEnabled)
+		if (IsShouldNotIsshieActivate())
 			return;
 
 		IspowerUpUsed = true;
 		IsshieldActive = true;
 		characterAnimator.Play("shield");
+	}
+	bool IsShouldNotIsshieActivate()
+    {
+		return IsshieldActive || Iscrashing || !IscontrolEnabled;
+
 	}
 
 	public void MoveUp()
@@ -530,7 +562,8 @@ public class PlayerManager : MonoBehaviour
 
 		if (moveToStart)
 		{
-			StartCoroutine(MoveToPosition(this.transform, new Vector3(xPos, 9, thisTransform.position.z), 1.0f, true));
+			var MoveToPositionData = new PlayerMoveToPositionData(this.transform, new Vector3(xPos, 9, thisTransform.position.z), 1.0f, true);
+			StartCoroutine(MoveToPosition(MoveToPositionData));
 		}
 	}
 
@@ -586,7 +619,8 @@ public class PlayerManager : MonoBehaviour
 			StartCoroutine("LaunchAbracadabra");
 
 			yield return new WaitForSeconds(0.4f);
-			StartCoroutine(MoveToPosition(this.transform, new Vector3(xPos, 9, thisTransform.position.z), 1.0f, false));
+			var MoveToPositionData = new PlayerMoveToPositionData(this.transform, new Vector3(xPos, 9, thisTransform.position.z), 1.0f, false);
+			StartCoroutine(MoveToPosition(MoveToPositionData));
 
 			yield return new WaitForSeconds(1.2f);
 			LevelSpawnManager.Instance.ContinueScrolling();
