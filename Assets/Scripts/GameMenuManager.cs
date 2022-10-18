@@ -23,6 +23,8 @@ public class GameMenuManager : MonoBehaviour
 	[Header("Shop Menu Settings")]
 	public TextMesh[] shopTexts;
 	public int[] shopPrices;
+
+
 	public GameObject[] shopElements;
 
 	[Header("Main GUI Settings")]
@@ -32,7 +34,6 @@ public class GameMenuManager : MonoBehaviour
 
 	[Header("Pause Menu Settings")]
 	public GameObject[] pauseElements;
-
 	[Header("Finish Menu Settings")]
 	public GameObject finishMenu;
 	public GameObject finishMenuTop;
@@ -66,6 +67,9 @@ public class GameMenuManager : MonoBehaviour
 	bool IsmNotification3Used = false;
 
 	public int restartCount = 0;
+
+	[SerializeField] ShopPriceDataBase shopPriceDatabase;
+
 
 	public static GameMenuManager Instance
 	{
@@ -246,20 +250,21 @@ public class GameMenuManager : MonoBehaviour
 
 	public void UpdateShop()
 	{
+		var shopPrices = shopPriceDatabase.GetItemPriceData();
 		//coin
 		shopTexts[0].text = PreferencesManager.Instance.GetCoins().ToString();
 		//extra speed
 		shopTexts[1].text = "x " + PreferencesManager.Instance.GetExtraSpeed();
-		shopTexts[2].text = shopPrices[0].ToString();
+		shopTexts[2].text = shopPrices.ToString();
 		//shield
 		shopTexts[3].text = "x " + PreferencesManager.Instance.GetShield();
-		shopTexts[4].text = shopPrices[1].ToString();
+		shopTexts[4].text = shopPrices.ToString();
 		//abracadabra
 		shopTexts[5].text = "x " + PreferencesManager.Instance.GetAbracadabra();
-		shopTexts[6].text = shopPrices[2].ToString();
+		shopTexts[6].text = shopPrices.ToString();
 		//revive
 		shopTexts[7].text = "x " + PreferencesManager.Instance.GetRevive();
-		shopTexts[8].text = shopPrices[3].ToString();
+		shopTexts[8].text = shopPrices.ToString();
 	}
 
 	public IEnumerator UpdateShopRoutine()
@@ -275,6 +280,7 @@ public class GameMenuManager : MonoBehaviour
 
 	void IsBuySpeedPowerup()
 	{
+		//var shopPrices = shopPriceDatabase.GetItemPriceData();
 		if (PreferencesManager.Instance.GetCoins() >= shopPrices[0])
 		{
 			PreferencesManager.Instance.ReduceCoins(shopPrices[0]);

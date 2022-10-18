@@ -1,0 +1,18 @@
+[
+  {
+    "ItemName" : "Speed",
+    "Price": 1000
+  },
+  {
+    "ItemName": "Shield",
+    "Price": 1000
+  },
+  {
+    "ItemName": "Abracadabra",
+    "Price": 1000
+  },
+  {
+    "ItemName": "Revive",
+    "Price": 1000
+  }
+]
