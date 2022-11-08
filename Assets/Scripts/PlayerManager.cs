@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using System;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -55,9 +56,19 @@ public class PlayerManager : MonoBehaviour
 	bool IsshopReviveUsed = false;
 	bool IspowerUpUsed = false;
 
+	public TimeSpan delayTimeSpan;
+
 	Transform thisTransform;
 
-	public static PlayerManager Instance
+	public TextMesh bestDist;
+
+
+	public void AddDelay(TimeSpan delay)
+    {
+		delayTimeSpan = delay;
+    }
+
+    public static PlayerManager Instance
 	{
 		get
 		{
@@ -93,6 +104,8 @@ public class PlayerManager : MonoBehaviour
 
 	void Update()
 	{
+		AddDelay(new TimeSpan(0, 0, 5));
+
 		if (IscontrolEnabled)
 		{
 			CalculateDistances();
@@ -102,8 +115,18 @@ public class PlayerManager : MonoBehaviour
 		}
 		if (Iscrashing)
 		{
-			Crash();
-			return;
+			AddDelay(new TimeSpan(0,0,5));
+			if (delayTimeSpan.TotalSeconds > 0)
+			{
+				bestDist.text = " (Please Wait for " +delayTimeSpan.Hours.ToString() + " Hours)";
+			}
+            else
+            {
+				Crash();
+				return;
+			}
+
+			
 		}
 		speed = 0;
 	}
