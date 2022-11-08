@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System;
 
 public class SpriteAnim : MonoBehaviour
 {
@@ -10,7 +12,12 @@ public class SpriteAnim : MonoBehaviour
 
 	bool vibeCheck = false;
 
-	void OnEnable()
+    var numbers = new List<int> { 1, 8, 3, 2 };
+    int Maxquery = numbers.Max();
+    int Minquery = numbers.Min();
+    int querycount = numbers.Count();
+    int sumquery = numbers.Sum();
+    void OnEnable()
 	{
 		vibeCheck = true;
 	}
@@ -50,4 +57,6 @@ public class SpriteAnim : MonoBehaviour
 
 		vibeCheck = true;
 	}
+
+
 }
